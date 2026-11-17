@@ -1,0 +1,14 @@
+tempo/.tempo/
+tempo/node_modules/
+tempo/dist/
+
+# App (Vite)
+node_modules
+dist
+dist-ssr
+*.local
+*.log
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea

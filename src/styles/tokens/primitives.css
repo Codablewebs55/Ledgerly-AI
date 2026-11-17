@@ -1,0 +1,92 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Ledgerly · Primitive tokens  (tier 1)
+
+   Raw, context-free values. Nothing in the product references these
+   directly — components consume SEMANTIC tokens (semantic.css), which point
+   here. Primitives are NOT exposed as Tailwind utilities, so `bg-forest-700`
+   cannot be written by accident.
+
+   Naming: --ldg-<family>-<step>, steps 50 (lightest) → 950 (darkest).
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Forest — primary brand. Deep, slightly blue-leaning green: reads as
+     "money" and "trust" without the neon of fintech greens. 700–900 carry
+     the brand; 50–100 are tints for selected/positive backgrounds. */
+  --ldg-forest-50: #eef5f0;
+  --ldg-forest-100: #d6e9dd;
+  --ldg-forest-200: #acd2bb;
+  --ldg-forest-300: #7bb594;
+  --ldg-forest-400: #4c9470;
+  --ldg-forest-500: #2d7855;
+  --ldg-forest-600: #1f6045;
+  --ldg-forest-700: #184e38;
+  --ldg-forest-800: #133f2e;
+  --ldg-forest-900: #0f3225;
+  --ldg-forest-950: #0a231a;
+
+  /* Lime — accent. Soft, slightly desaturated. Light steps (200–400) are
+     for highlights on forest/dark surfaces and the single key CTA; dark
+     steps (700–800) are the only lime that may be used as text on light. */
+  --ldg-lime-50: #f8fbe9;
+  --ldg-lime-100: #eef6cd;
+  --ldg-lime-200: #e1efa3;
+  --ldg-lime-300: #d0e574;
+  --ldg-lime-400: #bdd84d;
+  --ldg-lime-500: #a3bf2f;
+  --ldg-lime-600: #748a1c;
+  --ldg-lime-700: #63761c;
+  --ldg-lime-800: #4c5a19;
+  --ldg-lime-900: #3c4718;
+  --ldg-lime-950: #20280a;
+
+  /* Sand — warm neutrals. Every grey in the product comes from here, so
+     surfaces, borders and text share one warm undertone. */
+  --ldg-sand-0: #ffffff;
+  --ldg-sand-25: #fdfcf9;
+  --ldg-sand-50: #faf8f3;
+  --ldg-sand-100: #f3f0e8;
+  --ldg-sand-200: #e8e3d7;
+  --ldg-sand-300: #d7d0c0;
+  --ldg-sand-400: #b3a994;
+  --ldg-sand-500: #8b826e;
+  --ldg-sand-600: #6c6454;
+  --ldg-sand-700: #524c40;
+  --ldg-sand-800: #39352d;
+  --ldg-sand-900: #25221d;
+  --ldg-sand-950: #171511;
+
+  /* Status families — used only through status semantics. */
+  --ldg-red-50: #fdf2ef;
+  --ldg-red-100: #fadfd8;
+  --ldg-red-300: #eda08f;
+  --ldg-red-400: #e2735c;
+  --ldg-red-500: #cf4f37;
+  --ldg-red-600: #b23d27;
+  --ldg-red-700: #8f301f;
+  --ldg-red-900: #4a1a11;
+
+  --ldg-amber-50: #fdf6e6;
+  --ldg-amber-100: #f9e8c0;
+  --ldg-amber-300: #edc265;
+  --ldg-amber-400: #e2a92f;
+  --ldg-amber-500: #c98c12;
+  --ldg-amber-600: #a2700c;
+  --ldg-amber-700: #7f570c;
+  --ldg-amber-900: #3f2c08;
+
+  --ldg-blue-50: #eef3fa;
+  --ldg-blue-100: #d8e4f4;
+  --ldg-blue-300: #94b4e0;
+  --ldg-blue-400: #6892cf;
+  --ldg-blue-500: #3f72b8;
+  --ldg-blue-600: #305e9d;
+  --ldg-blue-700: #264b7e;
+  --ldg-blue-900: #15273f;
+
+  /* Data-viz extras (categorical series beyond brand hues). */
+  --ldg-clay-400: #c98a6b;
+  --ldg-clay-500: #a8613f;
+  --ldg-slate-400: #8796a8;
+  --ldg-slate-500: #687689;
+}

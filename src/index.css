@@ -1,0 +1,60 @@
+/* Scan only the app's own source — never tempo/ canvases or the welcome
+   canvas's brand tokens. */
+@import "tailwindcss" source(none);
+@source "../src";
+@source "../index.html";
+
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/manrope";
+
+/* Token tiers: primitives → semantic → Tailwind theme. */
+@import "./styles/tokens/primitives.css";
+@import "./styles/tokens/semantic.css";
+@import "./styles/tokens/theme.css";
+
+@layer base {
+  html {
+    background-color: var(--ldg-bg-canvas);
+    color: var(--ldg-fg-default);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-size: var(--text-body-md);
+    line-height: var(--text-body-md--line-height);
+  }
+
+  /* Inter stylistic set: cv11 single-storey a, ss01 open digits (clearer figures). */
+  :root {
+    font-feature-settings: "cv11" 1, "ss01" 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--ldg-bg-accent);
+    color: var(--ldg-fg-on-accent);
+  }
+
+  /* One focus treatment everywhere; components may refine but not remove. */
+  :focus-visible {
+    outline: 2px solid var(--ldg-line-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* `figure` — financial numbers: tabular, lining, slashed zero off. Use on
+   every amount, count, percentage and date column. */
+@utility figure {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1, "cv11" 1;
+}

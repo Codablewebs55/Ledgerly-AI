@@ -1,0 +1,215 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Ledgerly · Semantic tokens  (tier 2)
+
+   Purpose-named tokens. This is the ONLY colour layer components use (via
+   the Tailwind utilities generated in theme.css). Swapping a theme means
+   re-pointing these — never editing components.
+
+   Naming:  --ldg-<role>-<variant>
+     bg-*      fills (page, surfaces, brand, accent, status)
+     fg-*      text and icons
+     line-*    borders, dividers, focus rings
+     chart-*   data-visualisation series
+
+   Contrast (WCAG 2.2 AA) is enforced by `pnpm tokens:check`, which reads
+   this file and fails on any pair below its required ratio.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces ------------------------------------------------------------ */
+  --ldg-bg-canvas: var(--ldg-sand-50); /* app/page background — warm off-white */
+  --ldg-bg-surface: var(--ldg-sand-0); /* cards, tables, inputs */
+  --ldg-bg-surface-raised: var(--ldg-sand-0); /* popovers, menus, dialogs (+ shadow) */
+  --ldg-bg-surface-sunken: var(--ldg-sand-100); /* wells, table headers, segmented tracks */
+  --ldg-bg-surface-hover: var(--ldg-sand-100); /* row / item hover */
+  --ldg-bg-surface-selected: var(--ldg-forest-50); /* selected row, active nav item */
+  --ldg-bg-inverse: var(--ldg-forest-950); /* dark brand bands, sidebar, tooltips */
+  --ldg-bg-inverse-raised: var(--ldg-forest-900); /* cards placed on inverse */
+  --ldg-bg-overlay: rgb(23 21 17 / 0.48); /* modal scrim */
+
+  /* Brand (forest) — primary actions, brand moments ---------------------- */
+  --ldg-bg-brand: var(--ldg-forest-700);
+  --ldg-bg-brand-hover: var(--ldg-forest-800);
+  --ldg-bg-brand-active: var(--ldg-forest-900);
+  --ldg-bg-brand-subtle: var(--ldg-forest-50);
+  --ldg-bg-brand-subtle-hover: var(--ldg-forest-100);
+
+  /* Accent (lime) — use sparingly: one key CTA per view, highlights,
+     AI-assistant moments, chart emphasis. Never a large page surface. */
+  --ldg-bg-accent: var(--ldg-lime-300);
+  --ldg-bg-accent-hover: var(--ldg-lime-400);
+  --ldg-bg-accent-subtle: var(--ldg-lime-100);
+
+  /* Foreground ----------------------------------------------------------- */
+  --ldg-fg-default: var(--ldg-sand-900); /* body copy, headings, figures */
+  --ldg-fg-muted: var(--ldg-sand-700); /* secondary text, labels */
+  --ldg-fg-subtle: var(--ldg-sand-600); /* captions, helper text, placeholders */
+  --ldg-fg-disabled: var(--ldg-sand-400); /* disabled text (exempt from AA) */
+  --ldg-fg-brand: var(--ldg-forest-700); /* brand-coloured text, links */
+  --ldg-fg-brand-strong: var(--ldg-forest-800); /* link hover */
+  --ldg-fg-accent: var(--ldg-lime-800); /* lime-family text on light surfaces */
+  --ldg-fg-on-brand: var(--ldg-sand-0); /* text on bg-brand */
+  --ldg-fg-on-accent: var(--ldg-forest-950); /* text on bg-accent */
+  --ldg-fg-inverse: var(--ldg-sand-50); /* text on bg-inverse */
+  --ldg-fg-inverse-muted: var(--ldg-forest-200); /* secondary text on bg-inverse */
+  --ldg-fg-inverse-accent: var(--ldg-lime-300); /* highlight text on bg-inverse */
+
+  /* Lines ----------------------------------------------------------------- */
+  --ldg-line-subtle: var(--ldg-sand-100); /* row dividers inside cards */
+  --ldg-line-default: var(--ldg-sand-200); /* card borders, section dividers */
+  --ldg-line-strong: var(--ldg-sand-300); /* emphasised dividers */
+  --ldg-line-input: var(--ldg-sand-500); /* form control borders (≥3:1, WCAG 1.4.11) */
+  --ldg-line-input-hover: var(--ldg-sand-600);
+  --ldg-line-focus: var(--ldg-forest-600); /* focus ring (≥3:1 on every light surface) */
+  --ldg-line-focus-inverse: var(--ldg-lime-300); /* focus ring on bg-inverse / bg-brand */
+  --ldg-line-brand: var(--ldg-forest-700); /* selected/checked control borders */
+  --ldg-line-inverse: var(--ldg-forest-800); /* dividers on bg-inverse */
+
+  /* Status ---------------------------------------------------------------
+     bg-*-subtle + fg-* = badge/banner pair; bg-* solid + fg-on-* = strong. */
+  --ldg-bg-positive: var(--ldg-forest-600);
+  --ldg-bg-positive-subtle: var(--ldg-forest-50);
+  --ldg-fg-positive: var(--ldg-forest-600);
+  --ldg-line-positive: var(--ldg-forest-200);
+
+  --ldg-bg-negative: var(--ldg-red-600);
+  --ldg-bg-negative-subtle: var(--ldg-red-50);
+  --ldg-fg-negative: var(--ldg-red-600);
+  --ldg-line-negative: var(--ldg-red-300);
+
+  --ldg-bg-warning: var(--ldg-amber-400);
+  --ldg-bg-warning-subtle: var(--ldg-amber-50);
+  --ldg-fg-warning: var(--ldg-amber-700);
+  --ldg-fg-on-warning: var(--ldg-amber-900);
+  --ldg-line-warning: var(--ldg-amber-300);
+
+  --ldg-bg-info: var(--ldg-blue-600);
+  --ldg-bg-info-subtle: var(--ldg-blue-50);
+  --ldg-fg-info: var(--ldg-blue-600);
+  --ldg-line-info: var(--ldg-blue-300);
+
+  /* Data visualisation — ordered series, each ≥3:1 on surface & canvas.
+     1 = primary metric. chart-highlight is lime emphasis (e.g. "today",
+     the selected bar) and is decorative: always pair it with a label or a
+     chart-1 outline, never use it as the only carrier of meaning. */
+  --ldg-chart-1: var(--ldg-forest-700);
+  --ldg-chart-2: var(--ldg-lime-600);
+  --ldg-chart-3: var(--ldg-blue-500);
+  --ldg-chart-4: var(--ldg-clay-500);
+  --ldg-chart-5: var(--ldg-slate-500);
+  --ldg-chart-6: var(--ldg-forest-400);
+  --ldg-chart-highlight: var(--ldg-lime-300);
+  --ldg-chart-grid: var(--ldg-sand-200);
+  --ldg-chart-positive: var(--ldg-forest-500);
+  --ldg-chart-negative: var(--ldg-red-400);
+
+  /* Layout rhythm ---------------------------------------------------------- */
+  --ldg-page-gutter: 1rem; /* 16px mobile → 24px tablet → 32px desktop */
+  --ldg-section-gap: 1.5rem; /* between stacked app sections */
+  --ldg-marketing-section-y: 4rem; /* vertical padding of marketing sections */
+  --ldg-content-max: 80rem; /* 1280px app content max width */
+  --ldg-sidebar-width: 15.5rem; /* 248px */
+  --ldg-topbar-height: 4rem; /* 64px */
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --ldg-page-gutter: 1.5rem;
+    --ldg-section-gap: 2rem;
+    --ldg-marketing-section-y: 6rem;
+  }
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --ldg-page-gutter: 2rem;
+    --ldg-marketing-section-y: 8rem;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Dark theme — PREPARED, NOT ENABLED.
+   Activates only when an ancestor carries data-theme="dark". Nothing in the
+   app sets that attribute yet, and there is deliberately no
+   prefers-color-scheme hook, so the product ships light-only for now.
+   ───────────────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ldg-bg-canvas: var(--ldg-sand-950);
+  --ldg-bg-surface: #1e1c17;
+  --ldg-bg-surface-raised: #26231d;
+  --ldg-bg-surface-sunken: #12110d;
+  --ldg-bg-surface-hover: #2a2721;
+  --ldg-bg-surface-selected: #16291f;
+  --ldg-bg-inverse: var(--ldg-sand-50);
+  --ldg-bg-inverse-raised: var(--ldg-sand-0);
+  --ldg-bg-overlay: rgb(0 0 0 / 0.64);
+
+  --ldg-bg-brand: var(--ldg-forest-300);
+  --ldg-bg-brand-hover: var(--ldg-forest-200);
+  --ldg-bg-brand-active: var(--ldg-forest-100);
+  --ldg-bg-brand-subtle: #16291f;
+  --ldg-bg-brand-subtle-hover: #1c3427;
+
+  --ldg-bg-accent: var(--ldg-lime-300);
+  --ldg-bg-accent-hover: var(--ldg-lime-200);
+  --ldg-bg-accent-subtle: #262d10;
+
+  --ldg-fg-default: var(--ldg-sand-50);
+  --ldg-fg-muted: var(--ldg-sand-300);
+  --ldg-fg-subtle: var(--ldg-sand-400);
+  --ldg-fg-disabled: var(--ldg-sand-600);
+  --ldg-fg-brand: var(--ldg-forest-300);
+  --ldg-fg-brand-strong: var(--ldg-forest-200);
+  --ldg-fg-accent: var(--ldg-lime-300);
+  --ldg-fg-on-brand: var(--ldg-forest-950);
+  --ldg-fg-on-accent: var(--ldg-forest-950);
+  --ldg-fg-inverse: var(--ldg-sand-900);
+  --ldg-fg-inverse-muted: var(--ldg-sand-700);
+  --ldg-fg-inverse-accent: var(--ldg-forest-700);
+
+  --ldg-line-subtle: #26231d;
+  --ldg-line-default: #34302a;
+  --ldg-line-strong: #46413a;
+  --ldg-line-input: var(--ldg-sand-500);
+  --ldg-line-input-hover: var(--ldg-sand-400);
+  --ldg-line-focus: var(--ldg-lime-300);
+  --ldg-line-focus-inverse: var(--ldg-forest-700);
+  --ldg-line-brand: var(--ldg-forest-300);
+  --ldg-line-inverse: var(--ldg-sand-200);
+
+  --ldg-bg-positive: var(--ldg-forest-300);
+  --ldg-bg-positive-subtle: #16291f;
+  --ldg-fg-positive: var(--ldg-forest-300);
+  --ldg-line-positive: var(--ldg-forest-700);
+
+  --ldg-bg-negative: var(--ldg-red-400);
+  --ldg-bg-negative-subtle: #33160f;
+  --ldg-fg-negative: var(--ldg-red-300);
+  --ldg-line-negative: var(--ldg-red-700);
+
+  --ldg-bg-warning: var(--ldg-amber-300);
+  --ldg-bg-warning-subtle: #2e230b;
+  --ldg-fg-warning: var(--ldg-amber-300);
+  --ldg-fg-on-warning: var(--ldg-amber-900);
+  --ldg-line-warning: var(--ldg-amber-700);
+
+  --ldg-bg-info: var(--ldg-blue-300);
+  --ldg-bg-info-subtle: #141f30;
+  --ldg-fg-info: var(--ldg-blue-300);
+  --ldg-line-info: var(--ldg-blue-700);
+
+  --ldg-chart-1: var(--ldg-forest-300);
+  --ldg-chart-2: var(--ldg-lime-300);
+  --ldg-chart-3: var(--ldg-forest-500);
+  --ldg-chart-4: var(--ldg-blue-300);
+  --ldg-chart-5: var(--ldg-clay-400);
+  --ldg-chart-6: var(--ldg-slate-400);
+  --ldg-chart-highlight: var(--ldg-lime-300);
+  --ldg-chart-grid: #34302a;
+  --ldg-chart-positive: var(--ldg-forest-300);
+  --ldg-chart-negative: var(--ldg-red-400);
+}
