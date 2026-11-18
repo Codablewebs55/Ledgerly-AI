@@ -1,40 +1,19 @@
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@/ds'
 import { Accent } from '../parts'
-import { useReducedMotion } from '../motion'
-import { PatternWaves } from '../PatternWaves'
+import { useOsReducedMotion } from '../motion'
+import { ElectricLines } from '../ElectricLines'
 
-/** The closing band: one last invitation to open the demo, on a forest card with a slow halftone wave behind the copy. */
+/** The closing band: one last invitation to open the demo, on a forest card with electric current running along its right side. */
 export function FinalCta() {
-  const reduced = useReducedMotion()
+  // The current runs even with the page-wide motion switch off; only the visitor's OS setting stills it
+  const reduced = useOsReducedMotion()
 
   return (
     <section aria-labelledby="cta-title" className="bg-canvas px-4 pb-20 md:px-8 md:pb-28">
       <div className="relative isolate mx-auto max-w-[80rem] overflow-hidden rounded-2xl bg-inverse text-fg-inverse">
-        {/* Transparent canvas: the marks blend straight onto the forest fill. Slow drift, and a cursor dome that eases in just as slowly. */}
-        <PatternWaves
-          color="var(--ldg-fg-inverse)"
-          fade="edges"
-          fadeSize={0.5}
-          interactive
-          cursorSize={50}
-          cursorStrength={0.6}
-          cursorEase={0.03}
-          pattern="dot"
-          spacing={9}
-          markSize={0.95}
-          depth={0.95}
-          light={0}
-          shine={0.8}
-          contrast={1.2}
-          speed={0.12}
-          scale={1}
-          direction={20}
-          opacity={0.35}
-          intro
-          still={reduced}
-          className="absolute inset-0 -z-10"
-        />
+        {/* Current lines on the right half only, fading in from behind the copy */}
+        <ElectricLines still={reduced} className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-[60%] max-md:hidden" />
         <div className="px-6 py-16 md:px-12 md:py-24 lg:max-w-[48rem] lg:px-16">
           <h2 id="cta-title" className="font-display text-display-lg md:text-display-xl">
             Untangle your books. <Accent inverse>Today.</Accent>
