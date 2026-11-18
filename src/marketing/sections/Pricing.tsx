@@ -55,7 +55,7 @@ export function Pricing() {
                   <h3 id={`plan-${p.name}`} className="font-display text-heading-lg">
                     {p.name}
                   </h3>
-                  {p.recommended && <Badge tone="accent">Recommended</Badge>}
+                  {p.recommended && <Badge tone="accent" style={{ color: "var(--ldg-fg-brand)" }}>Recommended</Badge>}
                 </div>
                 <p className={cx('mt-2 text-body-sm', p.recommended ? 'text-fg-inverse-muted' : 'text-fg-muted')}>{p.for}</p>
                 <p className="mt-6 flex items-baseline gap-1.5">
