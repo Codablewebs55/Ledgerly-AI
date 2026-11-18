@@ -61,7 +61,7 @@ export function Capabilities() {
                 {invoicing.map((item, i) => (
                   <li
                     key={item}
-                    style={{ backgroundColor: "var(--ldg-bg-brand)", borderTopColor: "var(--ldg-fg-inverse-accent)", borderRightColor: "var(--ldg-fg-inverse-accent)", borderBottomColor: "var(--ldg-fg-inverse-accent)", borderLeftColor: "var(--ldg-fg-inverse-accent)", borderBottomLeftRadius: i === invoicing.length - 1 ? "16px" : "0px", marginTop: "-16px", marginBottom: "0px", borderBottomRightRadius: i === invoicing.length - 1 ? "16px" : "0px", color: "var(--color-line-control)", ['--i' as string]: i }}
+                    style={{ backgroundColor: "var(--ldg-bg-brand)", borderTopColor: "var(--ldg-fg-inverse-accent)", borderRightColor: "var(--ldg-fg-inverse-accent)", borderBottomColor: "var(--ldg-fg-inverse-accent)", borderLeftColor: "var(--ldg-fg-inverse-accent)", borderBottomLeftRadius: "16px", marginTop: "-16px", marginBottom: "0px", borderBottomRightRadius: "16px", color: "var(--color-line-control)", ['--i' as string]: i }}
                     className={cx('group/row flex items-center justify-between gap-3 rounded-xl border-2 border-surface/70 px-5 pt-6 pb-8 text-body-md font-medium text-fg', i > 0 && '-mt-2', i === invoicing.length - 1 && 'pb-6', 'relative transition-[translate,box-shadow] duration-(--duration-slow) ease-standard hover:z-10 motion-safe:group-hover/stack:translate-y-[calc(var(--i)*8px)] motion-safe:group-hover/stack:hover:translate-y-[calc(var(--i)*8px_-_10px)] motion-safe:hover:translate-x-4 hover:shadow-lg')}
                   >
                     {item}
