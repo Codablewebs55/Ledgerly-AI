@@ -36,7 +36,6 @@ export function Personas() {
               Built for the way small businesses <Accent>actually</Accent> work.
             </>
           }
-          intro="Three sample personas we designed Ledgerly around. They are illustrations, not customer stories."
         />
 
         <ul className="mt-12 grid gap-4 md:grid-cols-3 lg:mt-16">
