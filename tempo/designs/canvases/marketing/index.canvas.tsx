@@ -26,7 +26,7 @@ export default function MarketingCanvas() {
         id="Storyboard1"
         name="Storyboard1"
         component={Storyboard1}
-        layout={{ x: 0, y: 2193, width: 1216, height: 550 }}
+        layout={{ x: -1375, y: 0, width: 1216, height: 550 }}
       />
     </Canvas>
   );
