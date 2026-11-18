@@ -7,7 +7,7 @@ import gsap from 'gsap'
  * browser's own scrolling: the target resyncs to wherever the page actually is whenever the wheel is idle.
  * Off for touch-only devices and under the OS reduced-motion setting.
  */
-export function useSmoothScroll({ speed = 0.55, ease = 0.085, enabled = true } = {}) {
+export function useSmoothScroll({ speed = 0.35, ease = 0.07, enabled = true } = {}) {
   useEffect(() => {
     if (!enabled) return
     if (!matchMedia('(pointer: fine)').matches || matchMedia('(prefers-reduced-motion: reduce)').matches) return
