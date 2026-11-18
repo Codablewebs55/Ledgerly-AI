@@ -20,7 +20,7 @@ function Tile({ label, title, body, children, className, centered }: TileProps) 
     <Reveal className={className}>
       <article className="flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface">
         <div className="p-6 md:p-8">
-          <Badge tone="accent">{label}</Badge>
+          <Badge tone="accent" style={{ backgroundColor: "var(--ldg-bg-accent-subtle)" }}>{label}</Badge>
           <h3 className="mt-4 font-display text-heading-lg text-fg">{title}</h3>
           <p className="mt-2 max-w-[30rem] text-body-sm text-fg-muted md:text-body-md">{body}</p>
         </div>

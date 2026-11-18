@@ -52,7 +52,7 @@ export type BadgeProps = {
  */
 export function Badge({ children, tone = 'neutral', size = 'md', dot, icon: Icon, className, style }: BadgeProps) {
   return (
-    <span style={{ fontWeight: "var(--font-weight-regular)", outlineStyle: "solid", outlineWidth: "1px", outlineColor: "var(--ldg-bg-accent)", outlineOffset: "0px", backgroundColor: "var(--ldg-fg-inverse-accent)", color: "var(--ldg-bg-brand)", ...style }} className={cx('inline-flex w-fit shrink-0 items-center rounded-full font-medium whitespace-nowrap', tones[tone], sizes[size], className)}>
+    <span style={{ fontWeight: "var(--font-weight-regular)", backgroundColor: "var(--ldg-fg-inverse-accent)", color: "var(--ldg-bg-brand)", ...style }} className={cx('inline-flex w-fit shrink-0 items-center rounded-full font-medium whitespace-nowrap', tones[tone], sizes[size], className)}>
       {dot && <span className={cx('size-1.5 rounded-full', dots[tone])} aria-hidden />}
       {Icon && <Icon className="size-3.5" aria-hidden />}
       {children}
