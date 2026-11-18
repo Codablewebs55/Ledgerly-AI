@@ -1,7 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { CursorRing } from './CursorRing'
 import { Hero } from './Hero'
 import { MarketingNav } from './MarketingNav'
+import { useOsReducedMotion } from './motion'
 import { Assistant } from './sections/Assistant'
 import { Capabilities } from './sections/Capabilities'
 import { Faq } from './sections/Faq'
@@ -12,12 +13,16 @@ import { Pricing } from './sections/Pricing'
 import { Testimonials } from './sections/Testimonials'
 import { ValueProp } from './sections/ValueProp'
 import { Workflow } from './sections/Workflow'
+import { useScrollReveal } from './useScrollReveal'
 import { useSmoothScroll } from './useSmoothScroll'
 
 /** Ledgerly marketing site at `/`. */
 export default function LandingPage() {
   // Wheel scrolling at roughly half speed, eased by GSAP
   useSmoothScroll()
+  // Titles and cards ease in as each section scrolls into view
+  const pageRef = useRef<HTMLDivElement>(null)
+  useScrollReveal(pageRef, !useOsReducedMotion())
 
   useEffect(() => {
     document.title = 'Ledgerly · Financial management, made easy'
@@ -35,7 +40,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div ref={pageRef} className="min-h-screen bg-canvas">
       <a href="#main" className="sr-only z-50 rounded-md bg-accent px-4 py-2 text-fg-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
         Skip to content
       </a>
