@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { Button } from '@/ds'
 import { cx } from '@/ds/utils/cx'
 import { MOTION_ENABLED, useEasedScroll, useOsReducedMotion, useReducedMotion, useScrollProgress } from './motion'
-import { GlitterField } from './GlitterField'
+import { MouseField } from './MouseField'
 
 // Product stills are captured from the running app by
 // scripts/marketing/capture-stills.mjs (2x, seed data). Sizes are CSS px.
@@ -29,7 +29,7 @@ export function Hero() {
   const stage = useRef<HTMLDivElement>(null)
   const copy = useRef<HTMLDivElement>(null)
   const reduced = useReducedMotion()
-  // The glitter keeps moving even with the page-wide motion switch off; only the visitor's OS setting stills it
+  // The field keeps moving even with the page-wide motion switch off; only the visitor's OS setting stills it
   const osReduced = useOsReducedMotion()
   useScrollProgress(stage)
   useEasedScroll(copy)
@@ -71,11 +71,11 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Product stage: the Overview rises out of a glitter field and is cropped by the stage floor. On load the
+        {/* Product stage: the Overview rises out of a cursor-led contour field and is cropped by the stage floor. On load the
             stage swings upright in 3D. */}
         <div ref={stage} id="product" className="relative mt-14 scroll-mt-24 pb-12 md:mt-16 md:pb-16 lg:mt-20 lg:pb-24">
           <figure className={cx('relative overflow-hidden rounded-2xl border border-line-inverse bg-inverse-raised md:aspect-[16/10] lg:aspect-[1216/550]', MOTION_ENABLED && 'animate-stage-in [animation-delay:240ms]')}>
-            <GlitterField still={osReduced} className="absolute inset-0" />
+            <MouseField still={osReduced} className="absolute inset-0" />
 
             {/* Tablet and desktop: the Overview in a window frame, running off the bottom of the stage */}
             <div className="relative hidden px-[6%] pt-[6%] md:block lg:px-[8%]">
