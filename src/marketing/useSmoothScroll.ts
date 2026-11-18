@@ -2,8 +2,8 @@ import { useEffect } from 'react'
 import gsap from 'gsap'
 
 /**
- * Slower, eased wheel scrolling for the marketing page. Wheel input moves a target position at a fraction of its
- * native speed and GSAP's ticker eases the window toward it. Keyboard, scrollbar, anchor links and touch keep the
+ * Slower, eased wheel scrolling for the marketing page. Mouse-wheel input moves a target position at a fraction of its
+ * native speed and GSAP's ticker eases the window toward it; trackpad input is only slowed, since it is already smooth. Keyboard, scrollbar, anchor links and touch keep the
  * browser's own scrolling: the target resyncs to wherever the page actually is whenever the wheel is idle.
  * Off for touch-only devices and under the OS reduced-motion setting.
  */
@@ -27,8 +27,17 @@ export function useSmoothScroll({ speed = 0.35, ease = 0.07, enabled = true } = 
       if (e.target instanceof Element && e.target.closest('[data-native-scroll], [role="dialog"]')) return
       e.preventDefault()
       const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1
+      const step = e.deltaY * unit * speed
+      // Trackpads already arrive as a smooth momentum stream; easing them again feels laggy, so just scale them down.
+      // (Chrome and Safari report wheelDeltaY as -3 × deltaY for trackpads; mouse wheels step in notches.)
+      const trackpad = e.deltaMode === 0 && (e as WheelEvent & { wheelDeltaY?: number }).wheelDeltaY === -3 * e.deltaY
+      if (trackpad) {
+        active = false
+        scrollTo(0, gsap.utils.clamp(0, max(), scrollY + step))
+        return
+      }
       if (!active) current = target = scrollY
-      target = gsap.utils.clamp(0, max(), target + e.deltaY * unit * speed)
+      target = gsap.utils.clamp(0, max(), target + step)
       active = true
     }
 
@@ -39,7 +48,8 @@ export function useSmoothScroll({ speed = 0.35, ease = 0.07, enabled = true } = 
         active = false
         return
       }
-      current += (target - current) * ease
+      // Same glide at any refresh rate, and no lurch when a frame drops
+      current += (target - current) * (1 - Math.pow(1 - ease, gsap.ticker.deltaRatio(60)))
       if (Math.abs(target - current) < 1) {
         current = target
         active = false

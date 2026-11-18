@@ -228,6 +228,8 @@ export function MouseField({
 
     let last = { x: 0, y: 0, t: 0 }
     const onMove = (e: PointerEvent) => {
+      // Off screen the field is paused; skip the layout read so moving the pointer mid-scroll costs nothing
+      if (!running) return
       const rect = canvas.getBoundingClientRect()
       const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom
       if (!inside) return

@@ -204,7 +204,13 @@ export function CursorRing({
       }
     })
 
+    let blank = false
     const draw = () => {
+      // Pointer off the page (or over a text field): the ring is invisible, so after one clear frame stop redrawing
+      if (ring.alpha < 0.001) {
+        if (blank) return
+        blank = true
+      } else blank = false
       // Velocity of the trailing ring, eased so the stretch settles smoothly
       vel.x += (ring.x - last.x - vel.x) * 0.25
       vel.y += (ring.y - last.y - vel.y) * 0.25
