@@ -55,16 +55,17 @@ export function Capabilities() {
                 Pick a client and Ledgerly fills in their email and terms. Add what you did, watch the total, and send. Every invoice then shows whether it has been viewed, is
                 overdue or is paid.
               </p>
-              {/* Stacked rows: each tucks under the one before and steps a shade darker */}
-              <ul className="mt-6 flex flex-col">
+              {/* Stacked rows: each tucks under the one before and steps a shade darker. On hover the stack fans open, and the
+                  row under the pointer lifts out of it, slides right and spins its check. */}
+              <ul className="group/stack mt-6 flex flex-col">
                 {invoicing.map((item, i) => (
                   <li
                     key={item}
-                    style={{ backgroundColor: "var(--ldg-bg-brand)", borderTopColor: "var(--ldg-fg-inverse-accent)", borderRightColor: "var(--ldg-fg-inverse-accent)", borderBottomColor: "var(--ldg-fg-inverse-accent)", borderLeftColor: "var(--ldg-fg-inverse-accent)", borderBottomLeftRadius: i === invoicing.length - 1 ? "16px" : "0px", marginTop: "-16px", marginBottom: "0px", borderBottomRightRadius: i === invoicing.length - 1 ? "16px" : "0px", color: "var(--color-line-control)" }}
-                    className={cx('flex items-center justify-between gap-3 rounded-xl border-2 border-surface/70 px-5 pt-6 pb-8 text-body-md font-medium text-fg', i > 0 && '-mt-2', i === invoicing.length - 1 && 'pb-6')}
+                    style={{ backgroundColor: "var(--ldg-bg-brand)", borderTopColor: "var(--ldg-fg-inverse-accent)", borderRightColor: "var(--ldg-fg-inverse-accent)", borderBottomColor: "var(--ldg-fg-inverse-accent)", borderLeftColor: "var(--ldg-fg-inverse-accent)", borderBottomLeftRadius: i === invoicing.length - 1 ? "16px" : "0px", marginTop: "-16px", marginBottom: "0px", borderBottomRightRadius: i === invoicing.length - 1 ? "16px" : "0px", color: "var(--color-line-control)", ['--i' as string]: i }}
+                    className={cx('group/row flex items-center justify-between gap-3 rounded-xl border-2 border-surface/70 px-5 pt-6 pb-8 text-body-md font-medium text-fg', i > 0 && '-mt-2', i === invoicing.length - 1 && 'pb-6', 'relative transition-[translate,box-shadow] duration-(--duration-slow) ease-standard hover:z-10 motion-safe:group-hover/stack:translate-y-[calc(var(--i)*8px)] motion-safe:group-hover/stack:hover:translate-y-[calc(var(--i)*8px_-_10px)] motion-safe:hover:translate-x-4 hover:shadow-lg')}
                   >
                     {item}
-                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-fg-on-accent ring-1 ring-surface">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-fg-on-accent ring-1 ring-surface transition-transform duration-(--duration-slow) ease-standard motion-safe:group-hover/row:scale-115 motion-safe:group-hover/row:rotate-[360deg]">
                       <Check className="size-3.5" aria-hidden />
                     </span>
                   </li>
