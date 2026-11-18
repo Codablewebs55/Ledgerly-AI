@@ -1,4 +1,4 @@
-import { useEffect, type RefObject } from 'react'
+import { useLayoutEffect, type RefObject } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
@@ -6,17 +6,30 @@ import { SplitText } from 'gsap/SplitText'
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
 /**
- * Scroll-linked entrances for every section below the hero. Section titles split into masked words that rise into
+ * Entrances for the landing page: the hero title and copy play in on load, and every section below scrolls in. Section titles split into masked words that rise into
  * place; eyebrows and intros follow; every `Reveal` card lifts in with a slight 3D tilt, offset by its `delay`. All of
  * it is scrubbed to the scroll position with a lag, so it eases in slowly as the visitor scrolls and settles back if
  * they scroll up. Uses opacity, never visibility, so elements hidden on purpose stay hidden. Skipped under the OS reduced-motion setting.
  */
 export function useScrollReveal(root: RefObject<HTMLElement | null>, enabled = true) {
-  useEffect(() => {
+  // Layout effect, so nothing paints in its final state before the entrances hide it
+  useLayoutEffect(() => {
     const el = root.current
     if (!el || !enabled) return
 
     const ctx = gsap.context(() => {
+      // The hero plays the same word rise on page load instead of on scroll
+      const heroTitle = el.querySelector<HTMLElement>('#hero-title')
+      if (heroTitle) {
+        const split = SplitText.create(heroTitle, { type: 'words', mask: 'words' })
+        gsap.set(split.masks, { padding: '0 0.14em 0.12em 0', margin: '0 -0.14em -0.12em 0' })
+        const rest = heroTitle.nextElementSibling ? Array.from(heroTitle.nextElementSibling.children) : []
+        gsap
+          .timeline({ defaults: { ease: 'power3.out' }, delay: 0.15 })
+          .from(split.words, { yPercent: 110, rotate: 4, transformOrigin: '0% 100%', duration: 1.4, stagger: 0.09 })
+          .from(rest, { opacity: 0, y: 24, filter: 'blur(6px)', duration: 1.1, stagger: 0.14, clearProps: 'filter' }, 0.6)
+      }
+
       const sections = gsap.utils.toArray<HTMLElement>('main section[aria-labelledby]', el).slice(1) // the hero has its own load-in
 
       sections.forEach((section) => {
