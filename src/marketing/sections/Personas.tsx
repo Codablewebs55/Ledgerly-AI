@@ -5,6 +5,7 @@ import { Accent, Reveal, SectionHeading } from '../parts'
 const personas = [
   {
     name: 'Freelance designer',
+    avatar: 'James Morales',
     who: 'Works alone with a handful of retainer clients',
     need: 'Sends invoices from one place, sees at a glance who has opened them, and gets a nudge when a regular client is paying later than usual.',
     uses: ['Invoicing', 'Ledgerly AI'],
@@ -42,7 +43,7 @@ export function Personas() {
           {personas.map((p, i) => (
             <Reveal as="li" key={p.name} delay={i * 110} className="flex flex-col rounded-xl border border-line bg-surface p-6">
               <div className="flex items-center gap-3">
-                <Avatar name={p.name} size="lg" shape="square" tone="accent" />
+                <Avatar name={p.avatar ?? p.name} size="lg" shape="square" tone="accent" />
                 <div className="min-w-0">
                   <h3 className="text-body-md font-semibold text-fg">{p.name}</h3>
                   <p className="text-caption text-fg-muted">{p.who}</p>

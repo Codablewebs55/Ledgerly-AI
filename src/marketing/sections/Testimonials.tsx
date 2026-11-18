@@ -75,7 +75,7 @@ type AttributionProps = { name?: string; persona: string; detail: string; onAcce
 function Attribution({ name, persona, detail, onAccent, className }: AttributionProps) {
   return (
     <figcaption className={cx('flex flex-wrap items-center gap-3', className)}>
-      <Avatar name={persona} size="lg" shape="square" tone={onAccent ? 'auto' : 'accent'} />
+      <Avatar name={name ?? persona} size="lg" shape="square" tone={onAccent ? 'auto' : 'accent'} />
       <div className="min-w-0">
         <p className={cx('text-body-sm font-semibold', onAccent ? 'text-fg-on-accent' : 'text-fg-inverse')}>{name ? `${name} - ${persona}` : persona}</p>
         <p className={cx('text-caption', onAccent ? 'text-fg-on-accent/75' : 'text-fg-inverse-muted')}>{detail}</p>
