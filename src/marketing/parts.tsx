@@ -70,8 +70,8 @@ export function Shot({ still, alt, frame = 'card', className, imgClassName }: Sh
 }
 
 /**
- * Fades and lifts its children in the first time they scroll into view. Under reduced motion the duration tokens
- * collapse to zero, so content simply appears.
+ * Card wrapper. Lifts 8px on hover. When the page-wide motion switch is on it also fades its children in the first
+ * time they scroll into view; under reduced motion content simply appears and stays put.
  */
 export function Reveal({ children, delay = 0, className, as: Tag = 'div' }: { children: ReactNode; delay?: number; className?: string; as?: 'div' | 'li' }) {
   const ref = useRef<HTMLDivElement & HTMLLIElement>(null)
@@ -91,7 +91,7 @@ export function Reveal({ children, delay = 0, className, as: Tag = 'div' }: { ch
     return () => io.disconnect()
   }, [])
   return (
-    <Tag ref={ref} data-reveal={delay} className={cx(MOTION_ENABLED && (shown ? 'animate-rise-in' : 'opacity-0'), className)} style={MOTION_ENABLED && shown && delay ? { animationDelay: `${delay}ms` } : undefined}>
+    <Tag ref={ref} data-reveal={delay} className={cx(MOTION_ENABLED && (shown ? 'animate-rise-in' : 'opacity-0'), 'transition-[translate] duration-(--duration-slow) ease-standard motion-safe:hover:-translate-y-2', className)} style={MOTION_ENABLED && shown && delay ? { animationDelay: `${delay}ms` } : undefined}>
       {children}
     </Tag>
   )

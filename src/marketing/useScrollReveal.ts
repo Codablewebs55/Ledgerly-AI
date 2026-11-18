@@ -7,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
 
 /**
  * Scroll-linked entrances for every section below the hero (the hero text stays still). Section titles split into masked words that rise into
- * place; eyebrows and intros follow; every `Reveal` card slides straight up from below (no scale or tilt), offset by its `delay`. All of
+ * place; eyebrows and intros follow. Cards don't scroll in; they lift on hover instead (see `Reveal`). All of
  * it is scrubbed to the scroll position with a lag, so it eases in slowly as the visitor scrolls and settles back if
  * they scroll up. Uses opacity, never visibility, so elements hidden on purpose stay hidden. Skipped under the OS reduced-motion setting.
  */
@@ -36,20 +36,6 @@ export function useScrollReveal(root: RefObject<HTMLElement | null>, enabled = t
         if (eyebrow) tl.from(eyebrow, { opacity: 0, y: 16, duration: 0.4 }, 0)
         tl.from(split.words, { yPercent: 110, rotate: 4, transformOrigin: '0% 100%', duration: 0.8, stagger: 0.06 }, 0.1)
         if (intro) tl.from(intro, { opacity: 0, y: 24, filter: 'blur(6px)', duration: 0.6 }, 0.35)
-      })
-
-      gsap.utils.toArray<HTMLElement>('main [data-reveal]', el).forEach((card) => {
-        const lag = Math.min(Number(card.dataset.reveal) || 0, 400) / 40 // stagger siblings by their Reveal delay
-        gsap.fromTo(
-          card,
-          { opacity: 0, y: 90 },
-          {
-            opacity: 1,
-            y: 0,
-            ease: 'power2.out',
-            scrollTrigger: { trigger: card, start: `top ${96 - lag}%`, end: `top ${66 - lag}%`, scrub: 1.2 },
-          },
-        )
       })
     }, el)
 
