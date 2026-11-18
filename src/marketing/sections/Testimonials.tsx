@@ -9,6 +9,7 @@ import { Accent, Reveal, SectionHeading } from '../parts'
 const quotes = [
   {
     quote: 'I used to find out a client was late when I checked my bank balance. Now Ledgerly tells me first, and the reminder is already drafted.',
+    name: 'James Morales',
     persona: 'Freelance designer',
     detail: 'Invoicing and Ledgerly AI',
   },
@@ -68,15 +69,15 @@ export function Testimonials() {
   )
 }
 
-type AttributionProps = { persona: string; detail: string; onAccent?: boolean; className?: string }
+type AttributionProps = { name?: string; persona: string; detail: string; onAccent?: boolean; className?: string }
 
 /** Who the quote is attributed to: the persona and what they use. */
-function Attribution({ persona, detail, onAccent, className }: AttributionProps) {
+function Attribution({ name, persona, detail, onAccent, className }: AttributionProps) {
   return (
     <figcaption className={cx('flex flex-wrap items-center gap-3', className)}>
       <Avatar name={persona} size="lg" shape="square" tone={onAccent ? 'auto' : 'accent'} />
       <div className="min-w-0">
-        <p className={cx('text-body-sm font-semibold', onAccent ? 'text-fg-on-accent' : 'text-fg-inverse')}>{persona}</p>
+        <p className={cx('text-body-sm font-semibold', onAccent ? 'text-fg-on-accent' : 'text-fg-inverse')}>{name ? `${name} - ${persona}` : persona}</p>
         <p className={cx('text-caption', onAccent ? 'text-fg-on-accent/75' : 'text-fg-inverse-muted')}>{detail}</p>
       </div>
     </figcaption>
