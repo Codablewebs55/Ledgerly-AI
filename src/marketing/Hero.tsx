@@ -62,7 +62,7 @@ export function Hero() {
                 size="lg"
                 icon={ArrowDown}
                 iconPosition="end"
-                onClick={() => document.getElementById('showcase')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })}
+                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth' })}
               >
                 Explore Ledgerly
               </Button>

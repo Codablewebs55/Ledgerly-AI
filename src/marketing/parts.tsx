@@ -33,7 +33,7 @@ export function SectionHeading({ id, eyebrow, title, intro, inverse, align = 'sp
         </h2>
       </div>
       {intro && (
-        <p style={{ visibility: "hidden" }} className={cx('max-w-[34rem] text-body-md md:text-body-lg', inverse ? 'text-fg-inverse-muted' : 'text-fg-muted', align === 'split' && 'lg:col-span-5 lg:pb-2')}>
+        <p style={{ display: "none" }} className={cx('max-w-[34rem] text-body-md md:text-body-lg', inverse ? 'text-fg-inverse-muted' : 'text-fg-muted', align === 'split' && 'lg:col-span-5 lg:pb-2')}>
           {intro}
         </p>
       )}

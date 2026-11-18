@@ -11,7 +11,8 @@ export function FinalCta() {
 
   return (
     <section aria-labelledby="cta-title" className="bg-canvas px-4 pb-20 md:px-8 md:pb-28">
-      <div className="relative isolate mx-auto max-w-[80rem] overflow-hidden rounded-2xl bg-inverse text-fg-inverse">
+      {/* 76rem = the 80rem page container minus its 2rem side padding, so the card lines up with every other section */}
+      <div className="relative isolate mx-auto max-w-[76rem] overflow-hidden rounded-2xl bg-inverse text-fg-inverse">
         {/* Current lines on the right half only, fading in from behind the copy */}
         <ElectricLines still={reduced} className="pointer-events-none absolute inset-y-0 right-0 -z-10 w-[60%] max-md:hidden" />
         <div className="px-6 py-16 md:px-12 md:py-24 lg:max-w-[48rem] lg:px-16">
