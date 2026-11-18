@@ -22,23 +22,12 @@ export default function MarketingCanvas() {
         layout={{ x: 2374, y: 0, width: 390, height: 14548 }}
       />
       <Storyboard
-        id="Storyboard5"
-        name="Storyboard5"
+        id="Storyboard6"
+        name="Storyboard6"
         component={() => (
-          <div style={{ position: "relative", width: "641px", height: "591px" }}>
-            <img
-              src="/marketing/assistant-panel.webp"
-              width={416}
-              height={900}
-              alt="The Ledgerly AI panel's chat input, asking you to ask about your books, with a note that Ledgerly AI can make mistakes."
-              loading="eager"
-              decoding="async"
-              className="block w-full h-full object-cover object-bottom"
-              style={{ height: "1403px", position: "absolute", inset: "0px auto auto 0px", width: "641px", boxSizing: "border-box", margin: "0px" }}
-            />
-          </div>
+          <div style={{ position: "absolute", width: "641px", height: "488px", inset: "0px auto auto 0px" }} />
         )}
-        layout={{ x: -822, y: 4279, width: 641, height: 591 }}
+        layout={{ x: -1061, y: 4919, width: 641, height: 488 }}
       />
     </Canvas>
   );
