@@ -49,7 +49,9 @@ export function Testimonials() {
             <figure className="flex h-full flex-col rounded-2xl bg-accent p-8 text-fg-on-accent md:p-12">
               <Quote className="size-8 md:size-10" aria-hidden />
               <blockquote className="mt-6 font-display text-heading-xl lg:text-display-lg">“{featured.quote}”</blockquote>
-              <Attribution {...featured} onAccent className="mt-auto pt-10" />
+              <div className="mt-auto flex items-end justify-between gap-6 pt-10">
+                <Attribution {...featured} onAccent />
+              </div>
             </figure>
           </Reveal>
 
