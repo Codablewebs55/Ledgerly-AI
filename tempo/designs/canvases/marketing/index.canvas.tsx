@@ -25,7 +25,7 @@ export default function MarketingCanvas() {
         id="Storyboard2"
         name="Storyboard2"
         component={() => (
-          <div className="flex flex-1 flex-col bg-surface-sunken px-6 pt-6 md:px-8 md:pt-8 justify-end">
+          <div className="flex flex-1 flex-col bg-surface-sunken px-6 pt-6 md:px-8 md:pt-8 justify-end" style={{ height: "509px" }}>
             <div className="overflow-hidden border rounded-lg border-line bg-surface rounded-b-none border-b-0">
               <img
                 src="/marketing/cashflow.webp"
@@ -39,7 +39,7 @@ export default function MarketingCanvas() {
             </div>
           </div>
         )}
-        layout={{ x: 994, y: 14702, width: 801, height: 519 }}
+        layout={{ x: 994, y: 14702, width: 801, height: 509 }}
       />
     </Canvas>
   );
