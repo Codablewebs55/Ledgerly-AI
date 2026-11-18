@@ -16,6 +16,9 @@ export function useScrollReveal(root: RefObject<HTMLElement | null>, enabled = t
   useLayoutEffect(() => {
     const el = root.current
     if (!el || !enabled) return
+    // A window taller than any real screen (a full-page canvas board or capture) never scrolls, so scrubbed
+    // entrances would freeze part-way; show every title in place instead
+    if (innerHeight > 2000) return
 
     const ctx = gsap.context(() => {
       const sections = gsap.utils.toArray<HTMLElement>('main section[aria-labelledby]', el).slice(1) // skip the hero, whose text stays still
