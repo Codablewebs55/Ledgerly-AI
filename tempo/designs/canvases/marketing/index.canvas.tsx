@@ -7,25 +7,25 @@ export default function MarketingCanvas() {
         id="LandingDesktop"
         name="Landing · 1440"
         route="/"
-        layout={{ x: 0, y: 0, width: 1440, height: 10194 }}
+        layout={{ x: 0, y: 0, width: 1440, height: 10178 }}
       />
       <RouteStoryboard
         id="LandingTablet"
         name="Landing · 834"
         route="/"
-        layout={{ x: 1490, y: 0, width: 834, height: 14634 }}
+        layout={{ x: 1490, y: 0, width: 834, height: 14618 }}
       />
       <RouteStoryboard
         id="LandingMobile"
         name="Landing · 390"
         route="/"
-        layout={{ x: 2374, y: 0, width: 390, height: 15002 }}
+        layout={{ x: 2374, y: 0, width: 390, height: 14986 }}
       />
       <Storyboard
-        id="Storyboard2"
-        name="Storyboard2"
+        id="Storyboard3"
+        name="Storyboard3"
         component={() => (
-          <div className="flex flex-1 flex-col bg-surface-sunken px-6 pt-6 md:px-8 md:pt-8 justify-end" style={{ height: "509px" }}>
+          <div className="flex flex-1 flex-col bg-surface-sunken px-6 pt-6 md:px-8 md:pt-8 justify-end" style={{ height: "505px" }}>
             <div className="overflow-hidden border rounded-lg border-line bg-surface rounded-b-none border-b-0">
               <img
                 src="/marketing/cashflow.webp"
@@ -39,7 +39,7 @@ export default function MarketingCanvas() {
             </div>
           </div>
         )}
-        layout={{ x: 994, y: 14702, width: 801, height: 509 }}
+        layout={{ x: -885, y: 3067, width: 801, height: 505 }}
       />
     </Canvas>
   );
