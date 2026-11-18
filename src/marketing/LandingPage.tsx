@@ -27,20 +27,20 @@ export default function LandingPage() {
   useEffect(() => {
     document.title = 'Ledgerly · Financial management, made easy'
 
-    // No white rubber-band past the dark nav or the lime footer: stop the overscroll bounce, and where a browser
+    // No white rubber-band past any edge of the page: stop the overscroll bounce in both directions, and where a browser
     // still bounces, paint the exposed edges to match (forest above, lime below). Restored when leaving the page.
     const root = document.documentElement.style
-    const prev = { overscrollBehaviorY: root.overscrollBehaviorY, background: root.background }
-    root.overscrollBehaviorY = 'none'
+    const prev = { overscrollBehavior: root.overscrollBehavior, background: root.background }
+    root.overscrollBehavior = 'none' // both axes: no sideways rubber-band either
     root.background = 'linear-gradient(var(--ldg-bg-inverse) 50%, var(--ldg-bg-accent) 50%) fixed'
     return () => {
-      root.overscrollBehaviorY = prev.overscrollBehaviorY
+      root.overscrollBehavior = prev.overscrollBehavior
       root.background = prev.background
     }
   }, [])
 
   return (
-    <div ref={pageRef} className="min-h-screen bg-canvas">
+    <div ref={pageRef} className="min-h-screen overflow-x-clip bg-canvas">
       <a href="#main" className="sr-only z-50 rounded-md bg-accent px-4 py-2 text-fg-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
         Skip to content
       </a>
