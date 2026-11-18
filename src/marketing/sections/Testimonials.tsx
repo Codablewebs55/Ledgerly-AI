@@ -10,7 +10,7 @@ const quotes = [
   {
     quote: 'I used to find out a client was late when I checked my bank balance. Now Ledgerly tells me first, and the reminder is already drafted.',
     name: 'James Morales',
-    persona: 'Freelance designer',
+    persona: 'Product Manager',
     detail: 'Invoicing and Ledgerly AI',
   },
   {
