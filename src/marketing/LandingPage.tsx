@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { CursorRing } from './CursorRing'
 import { Hero } from './Hero'
 import { MarketingNav } from './MarketingNav'
 import { Assistant } from './sections/Assistant'
@@ -11,9 +12,13 @@ import { Pricing } from './sections/Pricing'
 import { Testimonials } from './sections/Testimonials'
 import { ValueProp } from './sections/ValueProp'
 import { Workflow } from './sections/Workflow'
+import { useSmoothScroll } from './useSmoothScroll'
 
 /** Ledgerly marketing site at `/`. */
 export default function LandingPage() {
+  // Wheel scrolling at roughly half speed, eased by GSAP
+  useSmoothScroll()
+
   useEffect(() => {
     document.title = 'Ledgerly · Financial management, made easy'
 
@@ -48,6 +53,7 @@ export default function LandingPage() {
         <FinalCta />
       </main>
       <Footer />
+      <CursorRing />
     </div>
   )
 }
