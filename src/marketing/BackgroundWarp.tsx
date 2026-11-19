@@ -5,13 +5,22 @@ import { useOsReducedMotion } from './motion'
 const SPREAD = 170
 /** How dark the bottom of the hole gets on sand and on forest bands */
 const DEPTH = { light: 0.14, dark: 0.4 }
+/** Spacing of the tiny grid that bends into the hole, in px */
+const PITCH = 12
+/** How wide the pull into the hole is felt */
+const PULL_SPREAD = 90
+/** How far the grid is drawn in at the centre (0–1) */
+const PULL = 0.35
+/** Peak opacity of the grid on sand and on forest bands: kept very faint */
+const GRID = { light: 0.4, dark: 0.16 }
 /** How quickly the hole opens, closes and follows the pointer, per frame */
 const EASE = 0.14
 
 /**
  * A subtle dark hole in the landing page's section backgrounds. While the mouse rests on open background, shade pools
- * under the pointer, deepest at its centre and fading smoothly to nothing, so the band seems to give way into a soft
- * well there, with no edge or outline. It follows with a slight lag, sits under all content (LandingPage lifts section
+ * under the pointer, deepest at its centre and fading smoothly to nothing, and a tiny, very faint lime grid
+ * (bg-accent) appears around it with its lines bending down into the hole, so the band seems to give way into a soft
+ * well there, with no edge or outline. The grid is fixed to the page, so the hole moves across it. It follows with a slight lag, sits under all content (LandingPage lifts section
  * content to z-10), never takes clicks, and closes over text, cards, images and controls. Mouse only; absent under
  * reduced motion.
  */
@@ -25,6 +34,7 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
     const ctx = cvs?.getContext('2d')
     if (!page || !cvs || !ctx || reduced) return
 
+    const lime = getComputedStyle(document.documentElement).getPropertyValue('--ldg-bg-accent').trim()
     let dpr = 1
     const size = () => {
       dpr = Math.min(devicePixelRatio || 1, 2)
@@ -40,6 +50,15 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
     let dark = false
     let raf = 0
 
+    // Where a point of the surface ends up when drawn into the hole, and how much of the grid shows there
+    const sink = (x: number, y: number) => {
+      const dx = x - at.x
+      const dy = y - at.y
+      const r = Math.hypot(dx, dy)
+      const pull = PULL * open * Math.exp(-((r / PULL_SPREAD) ** 2))
+      return { x: at.x + dx * (1 - pull), y: at.y + dy * (1 - pull), fade: Math.max(0, 1 - r / SPREAD) }
+    }
+
     const draw = () => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, innerWidth, innerHeight)
@@ -53,6 +72,31 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
       shade.addColorStop(1, 'rgb(0 0 0 / 0)')
       ctx.fillStyle = shade
       ctx.fillRect(at.x - SPREAD, at.y - SPREAD, SPREAD * 2, SPREAD * 2)
+
+      // The tiny grid, bending into the hole. Its rules are fixed to the page.
+      ctx.lineWidth = 0.75
+      ctx.strokeStyle = lime
+      const peak = (dark ? GRID.dark : GRID.light) * open
+      const offset = -(scrollY % PITCH)
+      const rule = (horizontal: boolean, c: number) => {
+        let prev: ReturnType<typeof sink> | null = null
+        for (let t = (horizontal ? at.x : at.y) - SPREAD; t <= (horizontal ? at.x : at.y) + SPREAD; t += 4) {
+          const p = horizontal ? sink(t, c) : sink(c, t)
+          if (prev) {
+            ctx.globalAlpha = peak * Math.min(prev.fade, p.fade) ** 1.5
+            if (ctx.globalAlpha > 0.003) {
+              ctx.beginPath()
+              ctx.moveTo(prev.x, prev.y)
+              ctx.lineTo(p.x, p.y)
+              ctx.stroke()
+            }
+          }
+          prev = p
+        }
+      }
+      for (let y = Math.floor((at.y - SPREAD - offset) / PITCH) * PITCH + offset; y <= at.y + SPREAD; y += PITCH) rule(true, y)
+      for (let x = Math.floor((at.x - SPREAD) / PITCH) * PITCH; x <= at.x + SPREAD; x += PITCH) rule(false, x)
+      ctx.globalAlpha = 1
     }
 
     const tick = () => {
