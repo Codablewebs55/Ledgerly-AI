@@ -72,32 +72,43 @@ export function AiMagician() {
     }
   }, [])
 
-  // Keep the eyes on the active section's heading as the page moves
+  // Keep the eyes on the active section's heading as the page moves. Positions are measured once (and again on
+  // resize), so scrolling only does arithmetic: no layout reads while the page is moving.
   useEffect(() => {
     const me = figure.current
     const eyes = pupils.current
-    if (!me || !eyes || !active) return
-    const heading = document.getElementById(active)
+    const heading = active ? document.getElementById(active) : null
+    if (!me || !eyes || !heading) return
+    let eye = { x: 0, y: 0 } // the magician's eyes, in the viewport (it is fixed in place)
+    let target = { x: 0, y: 0 } // the heading's centre, on the page
+    const measure = () => {
+      const from = me.getBoundingClientRect()
+      const to = heading.getBoundingClientRect()
+      eye = { x: from.left + from.width / 2, y: from.top + from.height * 0.45 }
+      target = { x: to.left + Math.min(to.width, 320) / 2, y: to.top + scrollY + to.height / 2 }
+    }
     let raf = 0
     const look = () => {
       raf = 0
-      if (!heading) return
-      const from = me.getBoundingClientRect()
-      const to = heading.getBoundingClientRect()
-      const dx = to.left + Math.min(to.width, 320) / 2 - (from.left + from.width / 2)
-      const dy = to.top + to.height / 2 - (from.top + from.height * 0.45)
+      const dx = target.x - eye.x
+      const dy = target.y - scrollY - eye.y
       const d = Math.hypot(dx, dy) || 1
       eyes.setAttribute('transform', `translate(${((dx / d) * LOOK).toFixed(2)} ${((dy / d) * LOOK).toFixed(2)})`)
     }
     const wake = () => {
       if (!raf) raf = requestAnimationFrame(look)
     }
+    const onResize = () => {
+      measure()
+      wake()
+    }
+    measure()
     look()
     addEventListener('scroll', wake, { passive: true })
-    addEventListener('resize', wake)
+    addEventListener('resize', onResize)
     return () => {
       removeEventListener('scroll', wake)
-      removeEventListener('resize', wake)
+      removeEventListener('resize', onResize)
       cancelAnimationFrame(raf)
     }
   }, [active])

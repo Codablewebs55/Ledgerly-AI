@@ -26,6 +26,22 @@ export default function LandingPage() {
   const pageRef = useRef<HTMLDivElement>(null)
   useScrollReveal(pageRef, !useOsReducedMotion())
 
+  // Once the page has settled, fetch and decode every lazy product still in the background, so scrolling never has to
+  // stop and decode a large image the first time it comes into view
+  useEffect(() => {
+    const page = pageRef.current
+    if (!page) return
+    const warm = () =>
+      page.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach((img) => {
+        img.loading = 'eager'
+        img.decode().catch(() => {})
+      })
+    const idle = window.requestIdleCallback ?? ((fn: () => void) => window.setTimeout(fn, 1200))
+    const cancel = window.cancelIdleCallback ?? window.clearTimeout
+    const id = idle(warm)
+    return () => cancel(id)
+  }, [])
+
   useEffect(() => {
     document.title = 'Ledgerly · Financial management, made easy'
 
