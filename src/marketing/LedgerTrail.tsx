@@ -4,15 +4,15 @@ import { useOsReducedMotion } from './motion'
 // A pair of parallel dashed hairlines that ink themselves in as the page scrolls. They drop from the very top of the
 // page, behind the header, down the hero's left gutter, turn in a clean rounded corner towards the centre, and from
 // there step down the page: a straight run across each section break, then straight down again. The route is worked
-// out from the page itself: every drop runs through a column with no text in it for the whole section, as near the
-// centre as the layout allows, and every run crosses the empty band between sections, so the lines never cross any
-// copy. At the FAQ they run along just above the list of questions and drop between the heading and the list. The
+// out from the page itself so the lines never cross any copy, card or image: they keep to the open lanes close to the
+// page edges and come into the middle only twice, beside the "Everything financial" heading and over the top of the
+// FAQ questions (dropping between the FAQ heading and the list). The
 // two lines keep an even gap the whole way (their corners are concentric), so they never touch or cross. They end by
 // plugging into the closing card.
 //
 // Scroll position drives the pen. Each horizontal run is drawn while its break passes the pen line, and the drops in
 // between are drawn as the section scrolls by, so scrolling back up retracts the lines along exactly the path they
-// drew. A flickering ember leads each tip.
+// drew. A flickering fire leads each tip.
 //
 // The lines sit above every section background but under all content (LandingPage lifts each section's content to
 // z-10), and recolour per band: forest on the sand sections, lime on the forest ones, blended across each break.
@@ -27,12 +27,15 @@ type Geometry = { w: number; h: number; strands: Strand[]; keys: Key[]; stops: S
 
 /** Where the pen sits in the viewport: the tips trail just past the middle of the screen */
 const PEN = 0.58
-/** The ember at each tip, as layered streaks ending at the tip: a long faint tail, a glow, and a short hot core */
+/**
+ * The fire leading each tip, as layered streaks that all end at the tip: a long fading tail of flame, a wide red
+ * halo, the flame itself and a short white-hot core
+ */
 const EMBER = [
-  { length: 260, width: 1, opacity: 0.35 },
-  { length: 90, width: 5, opacity: 0.18 },
-  { length: 120, width: 1.4, opacity: 0.7 },
-  { length: 36, width: 2.2, opacity: 1 },
+  { length: 300, width: 1, opacity: 0.45, color: 'text-ember-flame' },
+  { length: 110, width: 7, opacity: 0.22, color: 'text-ember-glow' },
+  { length: 70, width: 2.6, opacity: 0.9, color: 'text-ember-flame' },
+  { length: 24, width: 1.4, opacity: 1, color: 'text-ember-core' },
 ]
 /** Bezier handle length for a quarter circle */
 const KAPPA = 0.5523
@@ -42,6 +45,7 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
   const [geo, setGeo] = useState<Geometry | null>(null)
   const inks = useRef<(SVGPathElement | null)[]>([])
   const comets = useRef<(SVGGElement | null)[]>([])
+  const flames = useRef<(SVGGElement | null)[]>([])
   // Where the pen is, kept across re-layouts so the drawing never restarts. It starts at the top so the first stretch
   // inks itself in on load.
   const pen = useRef(0)
@@ -82,7 +86,13 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
             const streak = comet.children[j + 1] as SVGPathElement | undefined // after the <animate>
             if (streak) streak.style.strokeDashoffset = String(e.length - len)
           })
-          comet.style.opacity = still || len <= 0 || len >= s.total ? '0' : '1'
+          const live = !still && len > 0 && len < s.total
+          comet.style.opacity = live ? '1' : '0'
+          const flame = flames.current[i]
+          if (live && flame && ink) {
+            const p = ink.getPointAtLength(len)
+            flame.setAttribute('transform', `translate(${p.x} ${p.y})`)
+          }
         }
       })
     }
@@ -128,7 +138,6 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
       <svg width={geo.w} height={geo.h} viewBox={`0 0 ${geo.w} ${geo.h}`} fill="none" className="block">
         <defs>
           <Ink id="ledger-trail-ink" h={geo.h} stops={geo.stops} light={0.45} dark={0.55} />
-          <Ink id="ledger-trail-ember" h={geo.h} stops={geo.stops} light={1} dark={1} />
           {/* What has been drawn so far: solid strokes that uncover the dashed lines */}
           <mask id="ledger-trail-drawn" maskUnits="userSpaceOnUse" x="0" y="0" width={geo.w} height={geo.h}>
             {geo.strands.map((s, i) => (
@@ -162,16 +171,17 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
             ref={(el) => {
               comets.current[i] = el
             }}
-            stroke="url(#ledger-trail-ember)"
             strokeLinecap="round"
             fill="none"
             className="opacity-0 transition-opacity duration-(--duration-slow)"
           >
-            <animate attributeName="stroke-opacity" values="1;0.6;0.9;0.7;1" dur="1.4s" repeatCount="indefinite" />
+            <animate attributeName="stroke-opacity" values="1;0.55;0.95;0.7;1" dur="0.9s" repeatCount="indefinite" />
             {EMBER.map((e, j) => (
               <path
                 key={j}
                 d={s.d}
+                stroke="currentColor"
+                className={e.color}
                 strokeWidth={geo.stroke * e.width}
                 opacity={e.opacity}
                 pathLength={s.total}
@@ -179,6 +189,21 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
                 strokeDashoffset={e.length}
               />
             ))}
+            {/* The flame at the tip: a flickering red halo around a white-hot centre */}
+            <g
+              ref={(el) => {
+                flames.current[i] = el
+              }}
+              stroke="none"
+            >
+              <circle r={geo.stroke * 7} fill="currentColor" className="text-ember-glow" opacity={0.3}>
+                <animate attributeName="r" values={flicker(geo.stroke * 7)} dur="0.7s" repeatCount="indefinite" />
+              </circle>
+              <circle r={geo.stroke * 3.2} fill="currentColor" className="text-ember-flame">
+                <animate attributeName="r" values={flicker(geo.stroke * 3.2)} dur="0.45s" repeatCount="indefinite" />
+              </circle>
+              <circle r={geo.stroke * 1.4} fill="currentColor" className="text-ember-core" />
+            </g>
           </g>
         ))}
       </svg>
@@ -239,7 +264,7 @@ function layout(page: HTMLElement): Geometry | null {
   const w = page.clientWidth
   const h = page.scrollHeight
   const wide = w >= 768
-  const gap = wide ? 10 : 5 // half the space between the two lines
+  const gap = wide ? 10 : 4 // half the space between the two lines
   const radius = wide ? 28 : 18 // corner radius at the middle of the pair
 
   // The hero's left gutter, from the page edge to where its content starts
@@ -277,41 +302,50 @@ function layout(page: HTMLElement): Geometry | null {
     if (w - gap - 1 >= from) spans.push([from, w - gap - 1])
     return spans
   }
-  /**
-   * The clear column for a drop between y0 and y1: as near the centre as the layout allows, never a jog too short to
-   * turn cleanly, and on a near tie the side the line isn't on, so it steps across the page like a staircase
-   */
-  const freeX = (y0: number, y1: number, from: number) => {
-    const spans = clearSpans(y0, y1)
-    if (spans.some(([a, b]) => from >= a && from <= b) && spans.every(([a, b]) => Math.abs(Math.min(Math.max(mid, a), b) - mid) >= Math.abs(from - mid) - 1)) return from
+  /** The clear column between y0 and y1 nearest the centre, kept at least `away` from x = `from`; null if none */
+  const middle = (y0: number, y1: number, from: number) => {
     let best: number | null = null
-    let score = Infinity
-    for (const [a, b] of spans) {
-      for (const x of [Math.min(Math.max(mid, a), b), a, b]) {
-        if (Math.abs(x - from) < minRun) continue
-        const s = Math.abs(x - mid) + (Math.sign(x - mid) === Math.sign(from - mid) ? 40 : 0)
-        if (s < score) [best, score] = [x, s]
-      }
+    for (const [a, b] of clearSpans(y0, y1)) {
+      const x = Math.min(Math.max(mid, a), b)
+      if (Math.abs(x - from) >= minRun && Math.abs(x - mid) < w * 0.3 && (best === null || Math.abs(x - mid) < Math.abs(best - mid))) best = x
     }
     return best
   }
 
-  // The route of the pair's centreline: down the hero's left gutter from the top of the page, then section by section
-  // through the clear column nearest the centre, and finally in under the closing card
+  // The route of the pair's centreline. It keeps to the open lanes along the page edges, coming into the middle only
+  // twice: beside the "Everything financial" heading, and over the top of the FAQ questions.
   const card = rel(sections[last].firstElementChild ?? sections[last])
   const breaks = sections.map((_, k) => (k === 0 ? 0 : breakAt(k)))
-  const heroSpans = clearSpans(0, breaks[1])
-  const route: Pt[] = [{ x: heroSpans.length ? Math.min(Math.max(gutter / 2, heroSpans[0][0]), heroSpans[0][1]) : gap + 1, y: 0 }]
+  // As close to the edge as the pair fits; on phones, right against it
+  const lane = wide ? Math.max(gap + 1, Math.min(gap + 12, gutter - clear)) : gap + 1
+  const left = lane
+  const right = w - lane
+  const route: Pt[] = [{ x: left, y: 0 }] // down the hero's left edge from behind the header
   const at = () => route[route.length - 1]
   const turn = (x: number, y: number) => {
     if (Math.abs(x - at().x) < 1) return
     route.push({ x: at().x, y }, { x, y })
   }
-  for (let k = 1; k < last; k++) {
-    const y1 = k + 1 < last ? breaks[k + 1] : breaks[last]
-    const x = freeX(breaks[k], y1, at().x)
-    if (x !== null) turn(x, breaks[k])
+
+  // The value section: in to the open space beside its heading, down past it, then out to the right edge in the gap
+  // above the cards. Where the heading fills the width, straight across instead.
+  const valueBody = sections[1].firstElementChild
+  const heading = valueBody?.children[0]
+  const below = valueBody?.children[1]
+  const turnAt = heading && below ? (rel(heading).bottom + rel(below).top) / 2 : breaks[1]
+  const besideHeading = turnAt - breaks[1] >= 2 * (radius + gap) + 8 ? middle(breaks[1], turnAt, left) : null
+  if (besideHeading !== null) {
+    turn(besideHeading, breaks[1])
+    turn(right, turnAt)
+  } else turn(right, breaks[1])
+
+  // Down the right edge to the FAQ, then along the top of the questions and down between the heading and the list
+  const faq = sections.findIndex((s) => s.id === 'faq')
+  if (faq > 0 && faq < last) {
+    const x = middle(breaks[faq], breaks[last], at().x)
+    if (x !== null) turn(x, breaks[faq])
   }
+
   // Into the card: across to clear its rounded corner if the line is outside it, then down behind it
   const inside = Math.min(Math.max(at().x, card.left + minRun), card.right - minRun)
   if (Math.abs(inside - at().x) >= 1) turn(Math.abs(inside - at().x) < minRun ? at().x + Math.sign(inside - at().x) * minRun : inside, breaks[last])
@@ -479,4 +513,6 @@ function unit(a: Pt, b: Pt): Pt {
 }
 
 const f = (n: number) => n.toFixed(1)
+/** Radius keyframes for a flame that flickers around r */
+const flicker = (r: number) => [1, 1.3, 0.85, 1.2, 0.95, 1].map((k) => f(r * k)).join(';')
 const clamp01 = (n: number) => Math.min(1, Math.max(0, n))
