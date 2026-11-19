@@ -3,7 +3,7 @@ import { defineControls } from 'tempo-sdk/assets'
 import { cx } from '../utils/cx'
 import type { IconComponent } from '../utils/types'
 
-export type BadgeTone = 'neutral' | 'brand' | 'accent' | 'positive' | 'negative' | 'warning' | 'draft' | 'info' | 'inverse' | 'inverse-accent'
+export type BadgeTone = 'neutral' | 'brand' | 'accent' | 'positive' | 'negative' | 'warning' | 'draft' | 'info' | 'muted' | 'inverse' | 'inverse-accent'
 
 const tones: Record<BadgeTone, string> = {
   /** The default label pill: subtle lime fill with forest text. */
@@ -16,6 +16,8 @@ const tones: Record<BadgeTone, string> = {
   /** Unsent work: amber-100 tint, a step stronger than warning. */
   draft: 'bg-draft-subtle text-fg-draft',
   info: 'bg-info-subtle text-fg-info',
+  /** Quiet context on a white card, e.g. the period notes under the Invoices summary figures: sunken sand fill, default text. */
+  muted: 'bg-surface-sunken text-fg',
   /** On the forest rail and other bg-inverse surfaces. */
   inverse: 'bg-inverse-chip text-fg-inverse-muted',
   /** Outlined lime on dark surfaces, e.g. the Recommended plan on the forest pricing card. */
@@ -31,6 +33,7 @@ const dots: Record<BadgeTone, string> = {
   warning: 'bg-fg-warning',
   draft: 'bg-draft',
   info: 'bg-fg-info',
+  muted: 'bg-fg-muted',
   inverse: 'bg-fg-inverse-muted',
   'inverse-accent': 'bg-fg-inverse-accent',
 }

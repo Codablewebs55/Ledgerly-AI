@@ -391,9 +391,9 @@ function Stat({ label, value, note, trend }: { label: string; value: ReactNode; 
     <div className="bg-surface px-5 py-4 md:px-6">
       <dt className="text-caption text-fg-subtle">{label}</dt>
       <dd className="mt-1 text-figure-lg">{value}</dd>
-      {/* Context sits in a neutral pill; a positive trend follows it in green */}
+      {/* Context sits in a muted pill; a positive trend follows it in green */}
       <dd className="mt-1.5 flex flex-wrap items-center gap-1.5 text-caption">
-        <Badge>{note}</Badge>
+        <Badge tone="muted">{note}</Badge>
         {trend && <span className="text-label font-normal text-fg-positive">{trend}</span>}
       </dd>
     </div>

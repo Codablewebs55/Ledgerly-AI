@@ -139,10 +139,11 @@ defineAsset(Avatar, {
 
 defineAsset(Badge, {
   libraries: ["Design System"],
-  usageInstructions: "Category and count labels. For lifecycle states (paid, overdue, matched…) use StatusBadge, never a hand-picked Badge tone. `draft` (bg-draft-subtle amber-100, text-fg-draft amber-700, amber-600 dot) is reserved for unsent work. `neutral` (the default) is the subtle-lime pill with forest text. `inverse` is only for bg-inverse surfaces (the side nav plan); `inverse-accent` is the outlined lime pill on forest (the Recommended pricing plan). Every tone is a token pair: never pass inline colour overrides, and status tones keep their documented semantic colours everywhere.",
+  usageInstructions: "Category and count labels. For lifecycle states (paid, overdue, matched…) use StatusBadge, never a hand-picked Badge tone. `draft` (bg-draft-subtle amber-100, text-fg-draft amber-700, amber-600 dot) is reserved for unsent work. `neutral` (the default) is the subtle-lime pill with forest text. `muted` (bg-surface-sunken, text-fg) is the quiet context pill under a summary figure, used only on the Invoices summary stats. `inverse` is only for bg-inverse surfaces (the side nav plan); `inverse-accent` is the outlined lime pill on forest (the Recommended pricing plan). Every tone is a token pair: never pass inline colour overrides, and status tones keep their documented semantic colours everywhere.",
   variants: {
     Neutral: { props: { children: "Recurring" } },
     Brand: { props: { children: "Net 30", tone: "brand" } },
+    Muted: { props: { children: "Last 90 days", tone: "muted" } },
     "AI suggestion": { props: { children: "AI suggestion", tone: "accent" } },
     "Plan (on inverse)": { props: { children: "Pro Plan", tone: "inverse", size: "sm" } },
     "Recommended (on inverse)": { props: { children: "Recommended", tone: "inverse-accent" } },

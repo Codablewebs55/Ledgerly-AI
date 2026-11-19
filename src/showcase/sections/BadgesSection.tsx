@@ -2,7 +2,7 @@ import { Sparkles } from 'lucide-react'
 import { Badge, StatusBadge, type BadgeTone, type Status } from '@/ds'
 import { Decision, Demo, DocRow, DocSection } from '../docs'
 
-const tones: BadgeTone[] = ['neutral', 'brand', 'accent', 'positive', 'negative', 'warning', 'draft', 'info']
+const tones: BadgeTone[] = ['neutral', 'brand', 'accent', 'positive', 'negative', 'warning', 'draft', 'info', 'muted']
 
 const groups: { label: string; statuses: Status[] }[] = [
   { label: 'Invoices', statuses: ['draft', 'scheduled', 'sent', 'viewed', 'partial', 'due-soon', 'paid', 'overdue', 'void'] },
@@ -27,7 +27,7 @@ export default function BadgesSection() {
         ))}
       </DocRow>
 
-      <DocRow name="Tones & sizes" description="Plain badges label categories and counts. sm (20px) goes in tables, md (24px) in headers and cards. Neutral, the default, is the subtle-lime pill with forest text. The inverse tone is for the forest rail, e.g. the plan in the workspace card; inverse-accent is the outlined lime pill on forest, e.g. the Recommended pricing plan.">
+      <DocRow name="Tones & sizes" description="Plain badges label categories and counts. sm (20px) goes in tables, md (24px) in headers and cards. Neutral, the default, is the subtle-lime pill with forest text. Muted is the sunken sand pill with default text, for quiet context under a figure, e.g. the period notes on the Invoices summary. The inverse tone is for the forest rail, e.g. the plan in the workspace card; inverse-accent is the outlined lime pill on forest, e.g. the Recommended pricing plan.">
         <Demo label="md">
           {tones.map((t) => (
             <Badge key={t} tone={t}>
