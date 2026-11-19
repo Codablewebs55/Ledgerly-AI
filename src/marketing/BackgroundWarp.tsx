@@ -2,13 +2,13 @@ import { useEffect, useRef, type RefObject } from 'react'
 import { useOsReducedMotion } from './motion'
 
 /** Radius of the hole's shade, in px: it fades to nothing by here, so there is no edge */
-const SPREAD = 170
+const SPREAD = 100
 /** How dark the bottom of the hole gets on sand and on forest bands */
 const DEPTH = { light: 0.14, dark: 0.4 }
 /** Spacing of the tiny grid that bends into the hole, in px */
 const PITCH = 12
 /** How wide the pull into the hole is felt */
-const PULL_SPREAD = 90
+const PULL_SPREAD = 55
 /** How far the grid is drawn in at the centre (0–1) */
 const PULL = 0.35
 /** Peak opacity of the grid on sand and on forest bands: kept very faint */
