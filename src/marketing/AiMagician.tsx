@@ -31,7 +31,9 @@ export function AiMagician() {
   const figure = useRef<HTMLDivElement>(null)
   const pupils = useRef<SVGGElement>(null)
   const [active, setActive] = useState<string | null>(null)
-  const [line, setLine] = useState<string | null>(null)
+  // The last line stays in the bubble while it fades out; `speaking` controls whether it shows
+  const [line, setLine] = useState('')
+  const [speaking, setSpeaking] = useState(false)
   const [flick, setFlick] = useState(false)
   const timers = useRef<number[]>([])
 
@@ -43,9 +45,10 @@ export function AiMagician() {
       current = id
       setActive(id)
       setLine(LINES[id])
+      setSpeaking(true)
       setFlick(true)
       timers.current.forEach(clearTimeout)
-      timers.current = [window.setTimeout(() => setLine(null), SAY_MS), window.setTimeout(() => setFlick(false), 500)]
+      timers.current = [window.setTimeout(() => setSpeaking(false), SAY_MS), window.setTimeout(() => setFlick(false), 500)]
     }
     const headings = Object.keys(LINES)
       .map((id) => document.getElementById(id))
@@ -105,7 +108,7 @@ export function AiMagician() {
       <p
         className={cx(
           'mb-2 max-w-48 rounded-lg rounded-br-xs bg-inverse px-3 py-1.5 text-caption text-fg-inverse shadow-md transition-[opacity,translate] duration-(--duration-slow) ease-(--ease-standard)',
-          line ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
+          speaking ? 'translate-y-0 opacity-100' : 'translate-y-1 opacity-0',
         )}
       >
         {line}

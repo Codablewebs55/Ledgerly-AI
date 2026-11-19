@@ -14,6 +14,7 @@ import { Pricing } from './sections/Pricing'
 import { Testimonials } from './sections/Testimonials'
 import { ValueProp } from './sections/ValueProp'
 import { Workflow } from './sections/Workflow'
+import { usePressedSections } from './usePressedSections'
 import { useScrollReveal } from './useScrollReveal'
 import { useSmoothScroll } from './useSmoothScroll'
 
@@ -23,7 +24,10 @@ export default function LandingPage() {
   useSmoothScroll()
   // Titles and cards ease in as each section scrolls into view
   const pageRef = useRef<HTMLDivElement>(null)
-  useScrollReveal(pageRef, !useOsReducedMotion())
+  const reduced = useOsReducedMotion()
+  useScrollReveal(pageRef, !reduced)
+  // A section sinks into the page while the mouse rests on its open background
+  usePressedSections(pageRef, !reduced)
 
   useEffect(() => {
     document.title = 'Ledgerly · Financial management, made easy'
@@ -41,7 +45,11 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div ref={pageRef} className="min-h-screen overflow-x-clip bg-canvas">
+    // Pressed sections (see usePressedSections): an inset shadow, with the content settling back 1%
+    <div
+      ref={pageRef}
+      className="min-h-screen overflow-x-clip bg-canvas [&_main>section]:transition-shadow [&_main>section]:duration-(--duration-slow) [&_main>section]:ease-(--ease-standard) [&_main>section>*]:transition-transform [&_main>section>*]:duration-(--duration-slow) [&_main>section>*]:ease-(--ease-standard) [&_main>section[data-pressed]]:shadow-pressed [&_main>section[data-pressed]>*]:scale-99"
+    >
       <a href="#main" className="sr-only z-50 rounded-md bg-accent px-4 py-2 text-fg-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
         Skip to content
       </a>

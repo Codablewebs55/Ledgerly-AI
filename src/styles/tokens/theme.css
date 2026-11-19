@@ -207,6 +207,8 @@
   --shadow-lg: 0 4px 8px -2px rgb(23 21 17 / 0.06), 0 12px 28px -6px rgb(23 21 17 / 0.14);
   --shadow-xl: 0 8px 16px -4px rgb(23 21 17 / 0.08), 0 24px 56px -12px rgb(23 21 17 / 0.22);
   --shadow-inset: inset 0 1px 2px 0 rgb(23 21 17 / 0.06);
+  /* A whole band pressed into the page: deep shade along its top and bottom edges */
+  --shadow-pressed: inset 0 14px 32px -16px rgb(23 21 17 / 0.3), inset 0 -14px 32px -16px rgb(23 21 17 / 0.3);
 
   /* Motion ----------------------------------------------------------------
      Durations: use as `duration-(--duration-fast)`.
