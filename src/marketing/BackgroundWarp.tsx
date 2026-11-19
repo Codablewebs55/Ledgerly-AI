@@ -11,8 +11,8 @@ const PITCH = 12
 const PULL_SPREAD = 55
 /** How far the grid is drawn in at the centre (0–1) */
 const PULL = 0.35
-/** Peak opacity of the grid on sand and on forest bands: kept very faint */
-const GRID = { light: 0.4, dark: 0.16 }
+/** Peak opacity of the grid on sand and on forest bands: bright and clearly visible */
+const GRID = { light: 1, dark: 0.6 }
 /** How quickly the hole opens, closes and follows the pointer, per frame */
 const EASE = 0.14
 
@@ -74,7 +74,7 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
       ctx.fillRect(at.x - SPREAD, at.y - SPREAD, SPREAD * 2, SPREAD * 2)
 
       // The tiny grid, bending into the hole. Its rules are fixed to the page.
-      ctx.lineWidth = 0.75
+      ctx.lineWidth = 1
       ctx.strokeStyle = lime
       const peak = (dark ? GRID.dark : GRID.light) * open
       const offset = -(scrollY % PITCH)
