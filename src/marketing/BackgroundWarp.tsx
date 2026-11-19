@@ -1,97 +1,170 @@
 import { useEffect, useRef, type RefObject } from 'react'
 import { useOsReducedMotion } from './motion'
 
-/** Diameter of the dimple, in px */
-const SIZE = 380
-/** How strongly the dimple shows: kept low so it reads as a gentle warp, not a spotlight */
-const STRENGTH = 0.5
-/** Share of the gap to the pointer the dimple closes each frame: it trails the cursor softly, like a surface settling */
-const FOLLOW = 0.16
+/** Radius of the area the warp reaches, in px */
+const REACH = 230
+/** Spread of the funnel: how wide the pull is felt before it fades */
+const SPREAD = 120
+/** How far the surface is drawn into the hole at its centre (0–1) */
+const DEPTH = 0.42
+/** Spacing of the ledger rules the warp is drawn with */
+const PITCH = 26
+/** How quickly the hole opens, closes and follows the pointer, per frame */
+const EASE = 0.14
 
 /**
- * A subtle warp in the landing page's section backgrounds. While the mouse rests on open background, a soft dimple
- * follows it: light catching the near rim and shade pooling on the far side, so the flat colour reads as gently bent
- * under the cursor. Soft-light blending lets the same dimple work on sand and forest bands alike. It fades away over
- * anything with substance (text, cards, images, controls), sits under all content (LandingPage lifts section content
- * to z-10) and never takes clicks. Mouse only; absent under reduced motion.
+ * A subtle hole in the landing page's section backgrounds. While the mouse rests on open background, the surface
+ * around it sinks into a funnel: a faint ledger grid appears only there and its rules bend down into the cursor,
+ * with a little shade pooling at the centre. Everything fades out smoothly with distance, so there is no edge or
+ * bubble, just the background seeming to give way under the pointer. The grid is fixed to the page, so it stays put
+ * as the hole moves across it. Sits under all content (LandingPage lifts section content to z-10) and never takes
+ * clicks; it closes over text, cards, images and controls. Mouse only; absent under reduced motion.
  */
 export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | null> }) {
   const reduced = useOsReducedMotion()
-  const dimple = useRef<HTMLDivElement>(null)
+  const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const page = pageRef.current
-    const el = dimple.current
-    if (!page || !el || reduced) return
+    const cvs = canvas.current
+    const ctx = cvs?.getContext('2d')
+    if (!page || !cvs || !ctx || reduced) return
+
+    const root = getComputedStyle(document.documentElement)
+    const ink = { light: root.getPropertyValue('--ldg-line-strong').trim(), dark: root.getPropertyValue('--ldg-fg-inverse-subtle').trim() }
+    let dpr = 1
+    const size = () => {
+      dpr = Math.min(devicePixelRatio || 1, 2)
+      cvs.width = innerWidth * dpr
+      cvs.height = innerHeight * dpr
+    }
+    size()
 
     const at = { x: 0, y: 0 }
     const goal = { x: 0, y: 0 }
-    let shown = false
+    let open = 0 // how far the hole is open, 0–1
+    let target = 0
+    let dark = false
     let raf = 0
+
+    // Where a point of the surface ends up when drawn into the hole
+    const sink = (x: number, y: number) => {
+      const dx = x - at.x
+      const dy = y - at.y
+      const r = Math.hypot(dx, dy)
+      const pull = DEPTH * open * Math.exp(-((r / SPREAD) ** 2))
+      return { x: at.x + dx * (1 - pull), y: at.y + dy * (1 - pull), fade: Math.max(0, 1 - r / REACH) }
+    }
+
+    const draw = () => {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, innerWidth, innerHeight)
+      if (open < 0.01) return
+      ctx.lineWidth = 1
+      ctx.strokeStyle = dark ? ink.dark : ink.light
+      // The rules are fixed to the page, so the hole moves across them rather than dragging them along
+      const offset = -(scrollY % PITCH)
+      const x0 = at.x - REACH
+      const x1 = at.x + REACH
+      const y0 = at.y - REACH
+      const y1 = at.y + REACH
+      const rule = (horizontal: boolean, c: number) => {
+        let prev: ReturnType<typeof sink> | null = null
+        for (let t = horizontal ? x0 : y0; t <= (horizontal ? x1 : y1); t += 6) {
+          const p = horizontal ? sink(t, c) : sink(c, t)
+          if (prev) {
+            ctx.globalAlpha = 0.55 * open * Math.min(prev.fade, p.fade) ** 1.6
+            if (ctx.globalAlpha > 0.004) {
+              ctx.beginPath()
+              ctx.moveTo(prev.x, prev.y)
+              ctx.lineTo(p.x, p.y)
+              ctx.stroke()
+            }
+          }
+          prev = p
+        }
+      }
+      for (let y = Math.floor((y0 - offset) / PITCH) * PITCH + offset; y <= y1; y += PITCH) rule(true, y)
+      for (let x = Math.floor(x0 / PITCH) * PITCH; x <= x1; x += PITCH) rule(false, x)
+      // A little shade pooling at the bottom of the hole
+      const shade = ctx.createRadialGradient(at.x, at.y, 0, at.x, at.y, SPREAD)
+      shade.addColorStop(0, `rgb(0 0 0 / ${(dark ? 0.22 : 0.06) * open})`)
+      shade.addColorStop(1, 'rgb(0 0 0 / 0)')
+      ctx.globalAlpha = 1
+      ctx.fillStyle = shade
+      ctx.fillRect(at.x - SPREAD, at.y - SPREAD, SPREAD * 2, SPREAD * 2)
+    }
+
     const tick = () => {
-      at.x += (goal.x - at.x) * FOLLOW
-      at.y += (goal.y - at.y) * FOLLOW
-      el.style.transform = `translate3d(${at.x - SIZE / 2}px, ${at.y - SIZE / 2}px, 0)`
-      raf = Math.hypot(goal.x - at.x, goal.y - at.y) > 0.3 ? requestAnimationFrame(tick) : 0
+      at.x += (goal.x - at.x) * EASE
+      at.y += (goal.y - at.y) * EASE
+      open += (target - open) * EASE
+      draw()
+      const settled = Math.abs(target - open) < 0.005 && Math.hypot(goal.x - at.x, goal.y - at.y) < 0.3
+      if (settled && target === 0) {
+        open = 0
+        draw()
+      }
+      raf = settled ? 0 : requestAnimationFrame(tick)
     }
-    const show = (on: boolean) => {
-      if (on === shown) return
-      shown = on
-      el.style.opacity = on ? String(STRENGTH) : '0'
-      el.style.scale = on ? '1' : '0.8'
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(tick)
     }
+
     const onMove = (e: PointerEvent) => {
       if (e.pointerType !== 'mouse') return
       goal.x = e.clientX
       goal.y = e.clientY
-      if (!shown) {
-        // Appear where the pointer is, not sliding in from wherever it was last
+      if (open < 0.01) {
+        // Open where the pointer is, not sliding in from wherever it was last
         at.x = goal.x
         at.y = goal.y
       }
-      show(onOpenGround(e.target as Element))
-      if (!raf) raf = requestAnimationFrame(tick)
+      const section = openSection(e.target as Element)
+      target = section ? 1 : 0
+      if (section) dark = section.classList.contains('bg-inverse')
+      wake()
     }
-    const onLeave = () => show(false)
+    const close = () => {
+      target = 0
+      wake()
+    }
+    const onScroll = () => {
+      close()
+      draw()
+    }
+    const onResize = () => {
+      size()
+      draw()
+    }
     page.addEventListener('pointermove', onMove, { passive: true })
-    page.addEventListener('pointerleave', onLeave)
-    addEventListener('scroll', onLeave, { passive: true })
+    page.addEventListener('pointerleave', close)
+    addEventListener('scroll', onScroll, { passive: true })
+    addEventListener('resize', onResize)
     return () => {
       page.removeEventListener('pointermove', onMove)
-      page.removeEventListener('pointerleave', onLeave)
-      removeEventListener('scroll', onLeave)
+      page.removeEventListener('pointerleave', close)
+      removeEventListener('scroll', onScroll)
+      removeEventListener('resize', onResize)
       cancelAnimationFrame(raf)
     }
   }, [pageRef, reduced])
 
   if (reduced) return null
-  return (
-    <div
-      ref={dimple}
-      aria-hidden
-      className="pointer-events-none fixed top-0 left-0 z-0 scale-80 rounded-full opacity-0 mix-blend-soft-light transition-[opacity,scale] duration-(--duration-slower) ease-(--ease-standard) will-change-transform"
-      style={{
-        width: SIZE,
-        height: SIZE,
-        // Light on the near rim, shade pooling on the far side: the look of a shallow dent in the surface
-        background:
-          'radial-gradient(circle at 38% 36%, color-mix(in srgb, var(--color-surface) 70%, transparent) 0%, transparent 46%), radial-gradient(circle at 60% 62%, color-mix(in srgb, var(--color-fg) 70%, transparent) 0%, transparent 58%)',
-      }}
-    />
-  )
+  return <canvas ref={canvas} aria-hidden className="pointer-events-none fixed inset-0 z-0 size-full" />
 }
 
-/** True when the pointer is on a section's bare background rather than on any content */
-function onOpenGround(target: Element) {
+/** The section whose bare background the pointer is on, or null when it is over content */
+function openSection(target: Element) {
   const section = target.closest('main > section')
-  if (!section) return false
+  if (!section) return null
   for (let el: Element | null = target; el && el !== section; el = el.parentElement) {
-    if (!/^(DIV|UL|OL|LI)$/.test(el.tagName)) return false
-    if ([...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())) return false
+    if (!/^(DIV|UL|OL|LI)$/.test(el.tagName)) return null
+    if ([...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim())) return null
     const cs = getComputedStyle(el)
     const filled = !/^(transparent|rgba\(.*,\s*0\))$/.test(cs.backgroundColor) || cs.backgroundImage !== 'none'
     const bordered = parseFloat(cs.borderTopWidth) + parseFloat(cs.borderRightWidth) + parseFloat(cs.borderBottomWidth) + parseFloat(cs.borderLeftWidth) > 0
-    if (filled || bordered) return false
+    if (filled || bordered) return null
   }
-  return true
+  return section
 }
