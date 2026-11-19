@@ -34,7 +34,7 @@ export function Personas() {
           eyebrow="Who it is for"
           title={
             <>
-              Built for the way small businesses <Accent>actually</Accent> work.
+              Built for the way every business actually <Accent>works</Accent>.
             </>
           }
         />
