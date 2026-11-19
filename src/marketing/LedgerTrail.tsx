@@ -1,15 +1,18 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { useOsReducedMotion } from './motion'
 
-// A pair of parallel hairlines that ink themselves in as the page scrolls. They drop from the very top of the page,
-// behind the header, down the hero's left gutter, turn in a clean rounded corner to the centre of the page, and from
-// there step down through the middle: a straight run across each section break, then straight down again. The two
-// lines keep an even gap the whole way (their corners are concentric), so they never touch or cross. They end by
+// A pair of parallel dashed hairlines that ink themselves in as the page scrolls. They drop from the very top of the
+// page, behind the header, down the hero's left gutter, turn in a clean rounded corner towards the centre, and from
+// there step down the page: a straight run across each section break, then straight down again. The route is worked
+// out from the page itself: every drop runs through a column with no text in it for the whole section, as near the
+// centre as the layout allows, and every run crosses the empty band between sections, so the lines never cross any
+// copy. At the FAQ they run along just above the list of questions and drop between the heading and the list. The
+// two lines keep an even gap the whole way (their corners are concentric), so they never touch or cross. They end by
 // plugging into the closing card.
 //
 // Scroll position drives the pen. Each horizontal run is drawn while its break passes the pen line, and the drops in
 // between are drawn as the section scrolls by, so scrolling back up retracts the lines along exactly the path they
-// drew. A brighter comet rides the tip.
+// drew. A flickering ember leads each tip.
 //
 // The lines sit above every section background but under all content (LandingPage lifts each section's content to
 // z-10), and recolour per band: forest on the sand sections, lime on the forest ones, blended across each break.
@@ -24,8 +27,13 @@ type Geometry = { w: number; h: number; strands: Strand[]; keys: Key[]; stops: S
 
 /** Where the pen sits in the viewport: the tips trail just past the middle of the screen */
 const PEN = 0.58
-/** Length of the bright comet at each tip */
-const COMET = 220
+/** The ember at each tip, as layered streaks ending at the tip: a long faint tail, a glow, and a short hot core */
+const EMBER = [
+  { length: 260, width: 1, opacity: 0.35 },
+  { length: 90, width: 5, opacity: 0.18 },
+  { length: 120, width: 1.4, opacity: 0.7 },
+  { length: 36, width: 2.2, opacity: 1 },
+]
 /** Bezier handle length for a quarter circle */
 const KAPPA = 0.5523
 
@@ -33,7 +41,7 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
   const osReduced = useOsReducedMotion()
   const [geo, setGeo] = useState<Geometry | null>(null)
   const inks = useRef<(SVGPathElement | null)[]>([])
-  const comets = useRef<(SVGPathElement | null)[]>([])
+  const comets = useRef<(SVGGElement | null)[]>([])
   // Where the pen is, kept across re-layouts so the drawing never restarts. It starts at the top so the first stretch
   // inks itself in on load.
   const pen = useRef(0)
@@ -70,7 +78,10 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
         if (ink) ink.style.strokeDashoffset = String(s.total - len)
         const comet = comets.current[i]
         if (comet) {
-          comet.style.strokeDashoffset = String(COMET - len)
+          EMBER.forEach((e, j) => {
+            const streak = comet.children[j + 1] as SVGPathElement | undefined // after the <animate>
+            if (streak) streak.style.strokeDashoffset = String(e.length - len)
+          })
           comet.style.opacity = still || len <= 0 || len >= s.total ? '0' : '1'
         }
       })
@@ -113,41 +124,63 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
   if (!geo) return null
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+    <div aria-hidden data-ledger-trail className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
       <svg width={geo.w} height={geo.h} viewBox={`0 0 ${geo.w} ${geo.h}`} fill="none" className="block">
         <defs>
-          <Ink id="ledger-trail-ink" h={geo.h} stops={geo.stops} light={0.32} dark={0.42} />
-          <Ink id="ledger-trail-comet" h={geo.h} stops={geo.stops} light={0.85} dark={1} />
+          <Ink id="ledger-trail-ink" h={geo.h} stops={geo.stops} light={0.45} dark={0.55} />
+          <Ink id="ledger-trail-ember" h={geo.h} stops={geo.stops} light={1} dark={1} />
+          {/* What has been drawn so far: solid strokes that uncover the dashed lines */}
+          <mask id="ledger-trail-drawn" maskUnits="userSpaceOnUse" x="0" y="0" width={geo.w} height={geo.h}>
+            {geo.strands.map((s, i) => (
+              <path
+                key={i}
+                ref={(el) => {
+                  inks.current[i] = el
+                }}
+                d={s.d}
+                stroke="white"
+                strokeWidth={geo.stroke + 6}
+                fill="none"
+                pathLength={s.total}
+                strokeDasharray={s.total}
+                strokeDashoffset={s.total}
+              />
+            ))}
+          </mask>
         </defs>
-        <g strokeWidth={geo.stroke} strokeLinecap="round" fill="none">
+
+        <g mask="url(#ledger-trail-drawn)" stroke="url(#ledger-trail-ink)" strokeWidth={geo.stroke} strokeDasharray="6 5" fill="none">
           {geo.strands.map((s, i) => (
-            <path
-              key={`ink${i}`}
-              ref={(el) => {
-                inks.current[i] = el
-              }}
-              d={s.d}
-              stroke="url(#ledger-trail-ink)"
-              pathLength={s.total}
-              strokeDasharray={s.total}
-              strokeDashoffset={s.total}
-            />
-          ))}
-          {geo.strands.map((s, i) => (
-            <path
-              key={`comet${i}`}
-              ref={(el) => {
-                comets.current[i] = el
-              }}
-              d={s.d}
-              stroke="url(#ledger-trail-comet)"
-              pathLength={s.total}
-              strokeDasharray={`${COMET} ${s.total + COMET}`}
-              strokeDashoffset={COMET}
-              className="opacity-0 transition-opacity duration-(--duration-slow)"
-            />
+            <path key={i} d={s.d} />
           ))}
         </g>
+
+        {/* The ember at each tip: a solid streak that brightens towards the tip, with a soft glow, flickering */}
+        {geo.strands.map((s, i) => (
+          <g
+            key={i}
+            ref={(el) => {
+              comets.current[i] = el
+            }}
+            stroke="url(#ledger-trail-ember)"
+            strokeLinecap="round"
+            fill="none"
+            className="opacity-0 transition-opacity duration-(--duration-slow)"
+          >
+            <animate attributeName="stroke-opacity" values="1;0.6;0.9;0.7;1" dur="1.4s" repeatCount="indefinite" />
+            {EMBER.map((e, j) => (
+              <path
+                key={j}
+                d={s.d}
+                strokeWidth={geo.stroke * e.width}
+                opacity={e.opacity}
+                pathLength={s.total}
+                strokeDasharray={`${e.length} ${s.total + e.length}`}
+                strokeDashoffset={e.length}
+              />
+            ))}
+          </g>
+        ))}
       </svg>
     </div>
   )
@@ -173,11 +206,32 @@ function Ink({ id, h, stops, light, dark }: { id: string; h: number; stops: Stop
 // ---------------------------------------------------------------------------------------------------------------------
 // Layout
 
+/** Measures with every entrance and scroll transform switched off, so the layout is where things come to rest */
 function measure(page: HTMLElement): Geometry | null {
+  if (!document.getElementById('ledger-trail-rest')) {
+    const style = document.createElement('style')
+    style.id = 'ledger-trail-rest'
+    style.textContent =
+      '[data-trail-measure] *{transform:none!important;translate:none!important;scale:none!important;rotate:none!important}[data-trail-still] *{transition:none!important}'
+    document.head.append(style)
+  }
+  page.setAttribute('data-trail-still', '')
+  page.setAttribute('data-trail-measure', '')
+  try {
+    return layout(page)
+  } finally {
+    // Put the transforms back while transitions are still off, so nothing animates back into place
+    page.removeAttribute('data-trail-measure')
+    void page.offsetHeight
+    page.removeAttribute('data-trail-still')
+  }
+}
+
+function layout(page: HTMLElement): Geometry | null {
   const sections = Array.from(page.querySelectorAll<HTMLElement>(':scope > main > section'))
   if (sections.length < 3) return null
   const origin = page.getBoundingClientRect()
-  const rel = (el: Element) => {
+  const rel = (el: Element | Range) => {
     const r = el.getBoundingClientRect()
     return { top: r.top - origin.top, bottom: r.bottom - origin.top, left: r.left - origin.left, right: r.right - origin.left }
   }
@@ -185,36 +239,83 @@ function measure(page: HTMLElement): Geometry | null {
   const w = page.clientWidth
   const h = page.scrollHeight
   const wide = w >= 768
-  const gap = wide ? 10 : 6 // half the space between the two lines
+  const gap = wide ? 10 : 5 // half the space between the two lines
   const radius = wide ? 28 : 18 // corner radius at the middle of the pair
 
   // The hero's left gutter, from the page edge to where its content starts
   const body = sections[1].firstElementChild as HTMLElement
   const gutter = rel(body).left + parseFloat(getComputedStyle(body).paddingLeft)
 
-  // The centre of each empty band between one section's content and the next one's: the horizontal runs sit there
+  // Where the horizontal runs sit: in the empty band between one section's content and the next one's. Where a
+  // section opens with a rule along its top (the FAQ), the run sits just under the rule, along the top of the content.
   const last = sections.length - 1
   const breakAt = (k: number) => {
+    const s = sections[k]
     const above = rel(sections[k - 1].firstElementChild ?? sections[k - 1]).bottom
-    const below = rel(sections[k].firstElementChild ?? sections[k]).top
-    return (above + below) / 2
+    const below = rel(s.firstElementChild ?? s).top
+    const top = rel(s).top
+    return parseFloat(getComputedStyle(s).borderTopWidth) > 0 && below - top > 40 ? (top + below) / 2 : (above + below) / 2
   }
 
-  // The route of the pair's centreline: down the hero's left gutter from the top of the page, across to the centre,
-  // then stepping either side of the centre at each break, back to the centre and down into the closing card.
   const mid = w / 2
-  const step = Math.min(220, w * 0.16)
-  const card = rel(sections[last].firstElementChild ?? sections[last])
-  const route: Pt[] = [{ x: Math.max(gutter / 2, gap + 2), y: 0 }]
-  const turn = (x: number, y: number) => {
-    const at = route[route.length - 1]
-    if (Math.abs(x - at.x) < 1) return
-    route.push({ x: at.x, y }, { x, y })
+  // Everything on the page the lines must not cross: text, cards, panels, images
+  const texts = obstacles(page, rel)
+  const clear = gap + (wide ? 4 : 2)
+  const minRun = 2 * (radius + gap) + 4
+  /** The stretches of x with nothing in the way between y0 and y1 */
+  const clearSpans = (y0: number, y1: number) => {
+    const blocked = texts
+      .filter((r) => r.bottom > y0 && r.top < y1)
+      .map((r) => [r.left - clear, r.right + clear])
+      .sort((a, b) => a[0] - b[0])
+    const spans: [number, number][] = []
+    let from = gap + 1
+    for (const [a, b] of blocked) {
+      if (a >= from) spans.push([from, a])
+      from = Math.max(from, b)
+    }
+    if (w - gap - 1 >= from) spans.push([from, w - gap - 1])
+    return spans
   }
-  turn(mid, breakAt(1))
-  for (let k = 2; k < last; k++) turn(k % 2 ? mid - step : mid + step, breakAt(k))
-  turn(mid, breakAt(last))
-  route.push({ x: route[route.length - 1].x, y: card.top + 64 }) // on behind the card
+  /**
+   * The clear column for a drop between y0 and y1: as near the centre as the layout allows, never a jog too short to
+   * turn cleanly, and on a near tie the side the line isn't on, so it steps across the page like a staircase
+   */
+  const freeX = (y0: number, y1: number, from: number) => {
+    const spans = clearSpans(y0, y1)
+    if (spans.some(([a, b]) => from >= a && from <= b) && spans.every(([a, b]) => Math.abs(Math.min(Math.max(mid, a), b) - mid) >= Math.abs(from - mid) - 1)) return from
+    let best: number | null = null
+    let score = Infinity
+    for (const [a, b] of spans) {
+      for (const x of [Math.min(Math.max(mid, a), b), a, b]) {
+        if (Math.abs(x - from) < minRun) continue
+        const s = Math.abs(x - mid) + (Math.sign(x - mid) === Math.sign(from - mid) ? 40 : 0)
+        if (s < score) [best, score] = [x, s]
+      }
+    }
+    return best
+  }
+
+  // The route of the pair's centreline: down the hero's left gutter from the top of the page, then section by section
+  // through the clear column nearest the centre, and finally in under the closing card
+  const card = rel(sections[last].firstElementChild ?? sections[last])
+  const breaks = sections.map((_, k) => (k === 0 ? 0 : breakAt(k)))
+  const heroSpans = clearSpans(0, breaks[1])
+  const route: Pt[] = [{ x: heroSpans.length ? Math.min(Math.max(gutter / 2, heroSpans[0][0]), heroSpans[0][1]) : gap + 1, y: 0 }]
+  const at = () => route[route.length - 1]
+  const turn = (x: number, y: number) => {
+    if (Math.abs(x - at().x) < 1) return
+    route.push({ x: at().x, y }, { x, y })
+  }
+  for (let k = 1; k < last; k++) {
+    const y1 = k + 1 < last ? breaks[k + 1] : breaks[last]
+    const x = freeX(breaks[k], y1, at().x)
+    if (x !== null) turn(x, breaks[k])
+  }
+  // Into the card: across to clear its rounded corner if the line is outside it, then down behind it
+  const inside = Math.min(Math.max(at().x, card.left + minRun), card.right - minRun)
+  if (Math.abs(inside - at().x) >= 1) turn(Math.abs(inside - at().x) < minRun ? at().x + Math.sign(inside - at().x) * minRun : inside, breaks[last])
+  route.push({ x: at().x, y: card.top + 64 })
 
   // Each line is the centreline offset to one side, with corners that share a centre so the gap stays even
   const built = [-gap, gap].map((off) => offsetLine(route, off, radius))
@@ -244,6 +345,51 @@ function measure(page: HTMLElement): Geometry | null {
   stops.push({ offset: 1, inverse: false })
 
   return { w, h, strands, keys, stops, stroke: wide ? 1.25 : 1 }
+}
+
+type Box = { top: number; bottom: number; left: number; right: number }
+
+/**
+ * Boxes of everything the lines must keep clear of: each piece of text, and every card, panel, image or bordered
+ * box inside the sections (each clipped to any ancestor that clips it). Section backgrounds themselves are open
+ * ground. The header is left out: it rides along with the scroll.
+ */
+function obstacles(page: HTMLElement, rel: (el: Element | Range) => Box) {
+  const out: Box[] = []
+  const keep = (r: Box) => {
+    if (r.right - r.left > 1 && r.bottom - r.top > 1) out.push(r)
+  }
+  const walker = document.createTreeWalker(page, NodeFilter.SHOW_TEXT)
+  const range = document.createRange()
+  for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+    // Skip text nobody sees: screen-reader-only labels and the answers inside closed FAQ items
+    if (!n.textContent?.trim() || n.parentElement?.closest('header, [data-ledger-trail], .sr-only, details:not([open]) > :not(summary)')) continue
+    range.selectNodeContents(n)
+    keep(rel(range))
+  }
+  for (const el of page.querySelectorAll<HTMLElement>('main section *')) {
+    if (el.closest('[data-ledger-trail]')) continue
+    const cs = getComputedStyle(el)
+    const solid =
+      /^(IMG|CANVAS|VIDEO|INPUT|TEXTAREA|SELECT|BUTTON)$/.test(el.tagName) ||
+      !/^(transparent|rgba\(.*,\s*0\))$/.test(cs.backgroundColor) ||
+      cs.backgroundImage !== 'none' ||
+      parseFloat(cs.borderTopWidth) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth) + parseFloat(cs.borderBottomWidth) > 0
+    if (!solid || el.parentElement?.tagName === 'SECTION' && el.parentElement === el.closest('section') && cs.backgroundColor === 'rgba(0, 0, 0, 0)') continue
+    const r = rel(el)
+    for (let a = el.parentElement; a && a.tagName !== 'SECTION'; a = a.parentElement) {
+      const o = getComputedStyle(a)
+      if (o.overflowX !== 'visible' || o.overflowY !== 'visible') {
+        const c = rel(a)
+        r.left = Math.max(r.left, c.left)
+        r.right = Math.min(r.right, c.right)
+        r.top = Math.max(r.top, c.top)
+        r.bottom = Math.min(r.bottom, c.bottom)
+      }
+    }
+    keep(r)
+  }
+  return out
 }
 
 /**
