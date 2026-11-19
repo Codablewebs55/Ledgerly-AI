@@ -201,7 +201,6 @@ export const shadowScale = [
   { utility: 'shadow-md', use: 'Sticky bars' },
   { utility: 'shadow-lg', use: 'Menus, popovers' },
   { utility: 'shadow-xl', use: 'Dialogs, drawers' },
-  { utility: 'shadow-pressed', use: 'Landing section pressed in under the pointer' },
 ]
 
 export const motionDurations = [
