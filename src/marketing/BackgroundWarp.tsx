@@ -3,21 +3,22 @@ import { useOsReducedMotion } from './motion'
 
 /** Radius of the hole's shade, in px: it fades to nothing by here, so there is no edge */
 const SPREAD = 100
-/** How dark the bottom of the hole gets on sand and on forest bands */
-const DEPTH = { light: 0.14, dark: 0.4 }
+/** How dark the bottom of the hole gets */
+const DEPTH = 0.4
 /** Spacing of the tiny grid that bends into the hole, in px */
 const PITCH = 12
 /** How wide the pull into the hole is felt */
 const PULL_SPREAD = 55
 /** How far the grid is drawn in at the centre (0–1) */
 const PULL = 0.35
-/** Peak opacity of the grid on sand and on forest bands: bright and clearly visible */
-const GRID = { light: 1, dark: 0.6 }
+/** Peak opacity of the grid: clearly visible */
+const GRID = 0.6
 /** How quickly the hole opens, closes and follows the pointer, per frame */
 const EASE = 0.14
 
 /**
- * A subtle dark hole in the landing page's section backgrounds. While the mouse rests on open background, shade pools
+ * A subtle dark hole in the landing page's green (forest, bg-inverse) section backgrounds only; sand and other bands
+ * never show it. While the mouse rests on open background, shade pools
  * under the pointer, deepest at its centre and fading smoothly to nothing, and a tiny, very faint lime grid
  * (bg-accent) appears around it with its lines bending down into the hole, so the band seems to give way into a soft
  * well there, with no edge or outline. The grid is fixed to the page, so the hole moves across it. It follows with a slight lag, sits under all content (LandingPage lifts section
@@ -47,7 +48,6 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
     const goal = { x: 0, y: 0 }
     let open = 0 // how far the hole is open, 0–1
     let target = 0
-    let dark = false
     let raf = 0
 
     // Where a point of the surface ends up when drawn into the hole, and how much of the grid shows there
@@ -64,7 +64,7 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
       ctx.clearRect(0, 0, innerWidth, innerHeight)
       if (open < 0.01) return
       // Shade pooling into the hole: deep at the centre, easing off to nothing
-      const depth = (dark ? DEPTH.dark : DEPTH.light) * open
+      const depth = DEPTH * open
       const shade = ctx.createRadialGradient(at.x, at.y, 0, at.x, at.y, SPREAD)
       shade.addColorStop(0, `rgb(0 0 0 / ${depth})`)
       shade.addColorStop(0.3, `rgb(0 0 0 / ${depth * 0.62})`)
@@ -76,7 +76,7 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
       // The tiny grid, bending into the hole. Its rules are fixed to the page.
       ctx.lineWidth = 1
       ctx.strokeStyle = lime
-      const peak = (dark ? GRID.dark : GRID.light) * open
+      const peak = GRID * open
       const offset = -(scrollY % PITCH)
       const rule = (horizontal: boolean, c: number) => {
         let prev: ReturnType<typeof sink> | null = null
@@ -124,18 +124,16 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
         at.x = goal.x
         at.y = goal.y
       }
-      const section = openSection(e.target as Element)
-      target = section ? 1 : 0
-      if (section) dark = section.classList.contains('bg-inverse')
+      target = openSection(e.target as Element) ? 1 : 0
       wake()
     }
     const close = () => {
       target = 0
       wake()
     }
+    // Scrolling closes the hole; nothing to do (and no repaint) while it is already shut
     const onScroll = () => {
-      close()
-      draw()
+      if (open > 0 || target > 0) close()
     }
     const onResize = () => {
       size()
@@ -158,9 +156,9 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
   return <canvas ref={canvas} aria-hidden className="pointer-events-none fixed inset-0 z-0 size-full" />
 }
 
-/** The section whose bare background the pointer is on, or null when it is over content */
+/** The green (forest) section whose bare background the pointer is on, or null when it is over content or another band */
 function openSection(target: Element) {
-  const section = target.closest('main > section')
+  const section = target.closest('main > section.bg-inverse')
   if (!section) return null
   for (let el: Element | null = target; el && el !== section; el = el.parentElement) {
     if (!/^(DIV|UL|OL|LI)$/.test(el.tagName)) return null
