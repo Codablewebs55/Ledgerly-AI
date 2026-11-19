@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
+import { AiMagician } from './AiMagician'
 import { CursorRing } from './CursorRing'
 import { Hero } from './Hero'
-import { LedgerGrid } from './LedgerGrid'
 import { MarketingNav } from './MarketingNav'
 import { useOsReducedMotion } from './motion'
 import { Assistant } from './sections/Assistant'
@@ -41,9 +41,7 @@ export default function LandingPage() {
   }, [])
 
   return (
-    // Each section's (and the footer's) content is lifted to z-10 so the ledger grid (z-0) shows over the section
-    // backgrounds but under everything on them
-    <div ref={pageRef} className="relative min-h-screen overflow-x-clip bg-canvas [&_section>*]:relative [&_section>*]:z-10 [&>footer>*]:relative [&>footer>*]:z-10">
+    <div ref={pageRef} className="min-h-screen overflow-x-clip bg-canvas">
       <a href="#main" className="sr-only z-50 rounded-md bg-accent px-4 py-2 text-fg-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
         Skip to content
       </a>
@@ -61,7 +59,7 @@ export default function LandingPage() {
         <FinalCta />
       </main>
       <Footer />
-      <LedgerGrid />
+      <AiMagician />
       <CursorRing />
     </div>
   )
