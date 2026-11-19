@@ -109,9 +109,6 @@
   --color-chart-grid: var(--ldg-chart-grid);
   --color-chart-positive: var(--ldg-chart-positive);
   --color-chart-negative: var(--ldg-chart-negative);
-  --color-ember-core: var(--ldg-ember-core);
-  --color-ember-flame: var(--ldg-ember-flame);
-  --color-ember-glow: var(--ldg-ember-glow);
 }
 
 @theme {
@@ -380,9 +377,6 @@
   --color-chart-grid: var(--ldg-chart-grid);
   --color-chart-positive: var(--ldg-chart-positive);
   --color-chart-negative: var(--ldg-chart-negative);
-  --color-ember-core: var(--ldg-ember-core);
-  --color-ember-flame: var(--ldg-ember-flame);
-  --color-ember-glow: var(--ldg-ember-glow);
 }
 
 /* Reduced motion — collapse every duration token. */

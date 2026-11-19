@@ -127,12 +127,6 @@
   --ldg-chart-positive: var(--ldg-forest-500);
   --ldg-chart-negative: var(--ldg-red-400);
 
-  /* Ember: the brand-lime fire that leads the marketing scroll trail. Decorative, never carries meaning; the same in
-     both themes */
-  --ldg-ember-core: var(--ldg-lime-50); /* white-hot centre of the flame */
-  --ldg-ember-flame: var(--ldg-lime-400); /* the flame and its fading tail: the brand accent */
-  --ldg-ember-glow: var(--ldg-lime-500); /* the soft halo around it */
-
   /* Layout rhythm ---------------------------------------------------------- */
   --ldg-page-gutter: 1rem; /* 16px mobile → 24px tablet → 32px desktop */
   --ldg-section-gap: 1.5rem; /* between stacked app sections */
