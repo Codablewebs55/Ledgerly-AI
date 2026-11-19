@@ -1,56 +1,44 @@
 import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 import { useOsReducedMotion } from './motion'
 
-// Ledger lines that ink themselves in as the page scrolls. One line leaves the hero, branches, and the strands weave
-// down the side gutters: at each section break one or more swap sides (two swapping at once cross in an X), and two
-// strands sharing a gutter run side by side like a ledger's double rule. They finally converge and plug into the
-// closing card. Scroll position drives the pen: every strand's tip sits at the same height in the viewport, so
-// scrolling back up retracts each line along exactly the path it drew. A faint pencilled guide shows the route ahead.
+// A pair of parallel hairlines that ink themselves in as the page scrolls. They drop from the very top of the page,
+// behind the header, down the hero's left gutter, turn in a clean rounded corner to the centre of the page, and from
+// there step down through the middle: a straight run across each section break, then straight down again. The two
+// lines keep an even gap the whole way (their corners are concentric), so they never touch or cross. They end by
+// plugging into the closing card.
 //
-// The strands sit above every section background but under all content (LandingPage lifts each section's content
-// to z-10), and recolour per band: forest on the sand sections, lime on the forest ones, blended across each break.
+// Scroll position drives the pen. Each horizontal run is drawn while its break passes the pen line, and the drops in
+// between are drawn as the section scrolls by, so scrolling back up retracts the lines along exactly the path they
+// drew. A brighter comet rides the tip.
+//
+// The lines sit above every section background but under all content (LandingPage lifts each section's content to
+// z-10), and recolour per band: forest on the sand sections, lime on the forest ones, blended across each break.
 
-type Side = -1 | 1
 type Pt = { x: number; y: number }
 type Seg = { to: Pt; c1?: Pt; c2?: Pt }
 
-type Strand = {
-  d: string
-  total: number
-  /** Samples along the path: cumulative length, x and y. y never decreases, so length can be looked up by height. */
-  ls: Float32Array
-  xs: Float32Array
-  ys: Float32Array
-  /** Where the strand branches off its parent, if it does */
-  branch?: Pt
-  end: Pt
-}
-
+type Strand = { d: string; total: number }
+type Key = { pen: number; len: number[] }
 type Stop = { offset: number; inverse: boolean }
-type Geometry = { w: number; h: number; strands: Strand[]; stops: Stop[]; stroke: number }
+type Geometry = { w: number; h: number; strands: Strand[]; keys: Key[]; stops: Stop[]; stroke: number }
 
-// Gutter each strand runs in, per section (hero first, the closing card's section excluded). null = not started yet.
-// Read down a column to see a section break: A and B swap at the 2nd break (an X), C splits off B at the 4th, and so on.
-const ROUTES: { from: number; parent?: number; tracks: number; sides: (Side | null)[] }[] = [
-  { from: 0, tracks: -1, sides: [-1, -1, 1, 1, -1, -1, 1, 1, -1] }, // A: the trunk, from the top of the hero
-  { from: 1, parent: 0, tracks: 0, sides: [null, 1, -1, -1, -1, 1, 1, -1, 1] }, // B: branches off A as the hero ends
-  { from: 3, parent: 1, tracks: 1, sides: [null, null, null, 1, 1, -1, -1, 1, 1] }, // C: branches off B at the AI section (wide screens)
-]
-
-/** Where the pen sits in the viewport: tips trail just past the middle of the screen */
+/** Where the pen sits in the viewport: the tips trail just past the middle of the screen */
 const PEN = 0.58
+/** Length of the bright comet at each tip */
+const COMET = 220
+/** Bezier handle length for a quarter circle */
+const KAPPA = 0.5523
 
 export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | null> }) {
   const osReduced = useOsReducedMotion()
   const [geo, setGeo] = useState<Geometry | null>(null)
-  const lines = useRef<(SVGPathElement | null)[]>([])
-  const heads = useRef<(SVGGElement | null)[]>([])
-  const nodes = useRef<(SVGCircleElement | null)[]>([])
+  const inks = useRef<(SVGPathElement | null)[]>([])
+  const comets = useRef<(SVGPathElement | null)[]>([])
   // Where the pen is, kept across re-layouts so the drawing never restarts. It starts at the top so the first stretch
   // inks itself in on load.
   const pen = useRef(0)
 
-  // Measure the page and lay out the strands; again whenever the page changes size (fonts, images, viewport)
+  // Measure the page and lay out the lines; again whenever the page changes size (fonts, images, viewport)
   useLayoutEffect(() => {
     const page = pageRef.current
     if (!page) return
@@ -75,35 +63,26 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
     const page = pageRef.current
     if (!geo || !page) return
 
-    const draw = (penY: number) => {
+    const draw = (penY: number, still = false) => {
       geo.strands.forEach((s, i) => {
-        const len = lengthAtY(s, penY)
-        const line = lines.current[i]
-        if (line) line.style.strokeDashoffset = String(s.total - len)
-        const head = heads.current[i]
-        if (head) {
-          const live = len > 0 && len < s.total
-          head.style.opacity = live ? '1' : '0'
-          if (live) {
-            const p = pointAt(s, len)
-            head.setAttribute('transform', `translate(${p.x} ${p.y})`)
-          }
+        const len = lengthAt(geo.keys, i, penY)
+        const ink = inks.current[i]
+        if (ink) ink.style.strokeDashoffset = String(s.total - len)
+        const comet = comets.current[i]
+        if (comet) {
+          comet.style.strokeDashoffset = String(COMET - len)
+          comet.style.opacity = still || len <= 0 || len >= s.total ? '0' : '1'
         }
-        const start = nodes.current[i * 2]
-        if (start) start.style.opacity = len > 0 ? '1' : '0'
-        const end = nodes.current[i * 2 + 1]
-        if (end) end.style.opacity = len >= s.total - 0.5 ? '1' : '0'
       })
     }
 
     // Still: the finished drawing. Also on boards taller than any screen (full-page canvas captures), which never scroll.
     if (osReduced || innerHeight > 2000) {
-      draw(Infinity)
+      draw(Infinity, true)
       return
     }
 
-    const pageTop = () => page.getBoundingClientRect().top + scrollY
-    const target = () => scrollY + innerHeight * PEN - pageTop()
+    const target = () => scrollY + innerHeight * PEN - (page.getBoundingClientRect().top + scrollY)
     // The pen glides after the scroll a little, so a flick of the wheel still draws in one smooth stroke
     let last = 0
     let raf = 0
@@ -132,69 +111,41 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
   }, [geo, osReduced, pageRef])
 
   if (!geo) return null
-  const ink = 'url(#ledger-trail-ink)'
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
       <svg width={geo.w} height={geo.h} viewBox={`0 0 ${geo.w} ${geo.h}`} fill="none" className="block">
         <defs>
-          <linearGradient id="ledger-trail-ink" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={geo.h}>
-            {geo.stops.map((s, i) => (
-              <stop
-                key={i}
-                offset={s.offset}
-                stopColor="currentColor"
-                stopOpacity={s.inverse ? 0.7 : 0.45}
-                className={s.inverse ? 'text-line-inverse-accent' : 'text-line-brand'}
-              />
-            ))}
-          </linearGradient>
+          <Ink id="ledger-trail-ink" h={geo.h} stops={geo.stops} light={0.32} dark={0.42} />
+          <Ink id="ledger-trail-comet" h={geo.h} stops={geo.stops} light={0.85} dark={1} />
         </defs>
-
-        {/* The pencilled route ahead */}
-        <g opacity={0.3} stroke={ink} strokeWidth={1} strokeDasharray="1 7" strokeLinecap="round">
-          {geo.strands.map((s, i) => (
-            <path key={i} d={s.d} />
-          ))}
-        </g>
-
-        {/* The inked lines */}
-        <g stroke={ink} strokeWidth={geo.stroke} strokeLinecap="round" strokeLinejoin="round">
+        <g strokeWidth={geo.stroke} strokeLinecap="round" fill="none">
           {geo.strands.map((s, i) => (
             <path
-              key={i}
+              key={`ink${i}`}
               ref={(el) => {
-                lines.current[i] = el
+                inks.current[i] = el
               }}
               d={s.d}
+              stroke="url(#ledger-trail-ink)"
               pathLength={s.total}
               strokeDasharray={s.total}
               strokeDashoffset={s.total}
             />
           ))}
-        </g>
-
-        {/* Joints: where a strand branches off, and where it plugs into the closing card */}
-        <g fill={ink}>
-          {geo.strands.flatMap((s, i) => [
-            <Node key={`b${i}`} at={s.branch} r={geo.stroke + 2} innerRef={(el) => (nodes.current[i * 2] = el)} />,
-            <Node key={`e${i}`} at={s.end} r={geo.stroke + 2} innerRef={(el) => (nodes.current[i * 2 + 1] = el)} />,
-          ])}
-        </g>
-
-        {/* The pen: a nib with a soft halo at the tip of each strand */}
-        <g fill={ink}>
-          {geo.strands.map((_, i) => (
-            <g
-              key={i}
+          {geo.strands.map((s, i) => (
+            <path
+              key={`comet${i}`}
               ref={(el) => {
-                heads.current[i] = el
+                comets.current[i] = el
               }}
-              className="opacity-0 transition-opacity duration-(--duration-base)"
-            >
-              <circle r={geo.stroke * 6} opacity={0.18} />
-              <circle r={geo.stroke + 1.5} />
-            </g>
+              d={s.d}
+              stroke="url(#ledger-trail-comet)"
+              pathLength={s.total}
+              strokeDasharray={`${COMET} ${s.total + COMET}`}
+              strokeDashoffset={COMET}
+              className="opacity-0 transition-opacity duration-(--duration-slow)"
+            />
           ))}
         </g>
       </svg>
@@ -202,9 +153,21 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
   )
 }
 
-function Node({ at, r, innerRef }: { at?: Pt; r: number; innerRef: (el: SVGCircleElement | null) => void }) {
-  if (!at) return null
-  return <circle ref={innerRef} cx={at.x} cy={at.y} r={r} className="opacity-0 transition-opacity duration-(--duration-slow)" />
+/** The ink colour down the page: lime on the forest bands, forest on the sand ones */
+function Ink({ id, h, stops, light, dark }: { id: string; h: number; stops: Stop[]; light: number; dark: number }) {
+  return (
+    <linearGradient id={id} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2={h}>
+      {stops.map((s, i) => (
+        <stop
+          key={i}
+          offset={s.offset}
+          stopColor="currentColor"
+          stopOpacity={s.inverse ? dark : light}
+          className={s.inverse ? 'text-line-inverse-accent' : 'text-line-brand'}
+        />
+      ))}
+    </linearGradient>
+  )
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -222,64 +185,52 @@ function measure(page: HTMLElement): Geometry | null {
   const w = page.clientWidth
   const h = page.scrollHeight
   const wide = w >= 768
+  const gap = wide ? 10 : 6 // half the space between the two lines
+  const radius = wide ? 28 : 18 // corner radius at the middle of the pair
 
-  // The side gutters: from the page edge to where section content starts
+  // The hero's left gutter, from the page edge to where its content starts
   const body = sections[1].firstElementChild as HTMLElement
   const gutter = rel(body).left + parseFloat(getComputedStyle(body).paddingLeft)
-  const lane = (side: Side, track: number) => (side < 0 ? gutter / 2 : w - gutter / 2) + track * Math.min(12, gutter * 0.18)
 
-  // The empty band at each section break, between one section's content and the next one's. Strands change gutters
-  // only inside these bands, so the sideways runs cross open space.
+  // The centre of each empty band between one section's content and the next one's: the horizontal runs sit there
   const last = sections.length - 1
-  const bands = sections.map((s, k) => {
-    if (k === 0) return { top: 0, bottom: 0 }
+  const breakAt = (k: number) => {
     const above = rel(sections[k - 1].firstElementChild ?? sections[k - 1]).bottom
-    const below = rel(s.firstElementChild ?? s).top
-    const mid = (above + below) / 2
-    const half = Math.max((below - above) / 2, 44)
-    return { top: mid - half * 0.85, bottom: mid + half * 0.85 }
-  })
+    const below = rel(sections[k].firstElementChild ?? sections[k]).top
+    return (above + below) / 2
+  }
 
+  // The route of the pair's centreline: down the hero's left gutter from the top of the page, across to the centre,
+  // then stepping either side of the centre at each break, back to the centre and down into the closing card.
+  const mid = w / 2
+  const step = Math.min(220, w * 0.16)
   const card = rel(sections[last].firstElementChild ?? sections[last])
-  const navHeight = page.querySelector('header')?.getBoundingClientRect().height ?? 64
-  const routes = ROUTES.slice(0, wide ? 3 : 2)
+  const route: Pt[] = [{ x: Math.max(gutter / 2, gap + 2), y: 0 }]
+  const turn = (x: number, y: number) => {
+    const at = route[route.length - 1]
+    if (Math.abs(x - at.x) < 1) return
+    route.push({ x: at.x, y }, { x, y })
+  }
+  turn(mid, breakAt(1))
+  for (let k = 2; k < last; k++) turn(k % 2 ? mid - step : mid + step, breakAt(k))
+  turn(mid, breakAt(last))
+  route.push({ x: route[route.length - 1].x, y: card.top + 64 }) // on behind the card
 
-  // Lay each strand out section by section; a branch starts on its parent strand
-  const strands: Strand[] = routes.map((route) => {
-    const sideAt = (k: number) => route.sides[Math.min(k, route.sides.length - 1)] as Side
-    const x = (k: number) => lane(sideAt(k), route.tracks)
-    let start: Pt
-    let branch: Pt | undefined
-    const segs: Seg[] = []
-    if (route.from === 0) {
-      start = { x: x(0), y: navHeight }
-    } else {
-      // Peel off the strand this one shares a gutter with, at the top of the break
-      const b = bands[route.from]
-      const from = routes[route.parent ?? 0]
-      const px = lane(from.sides[route.from - 1] as Side, from.tracks)
-      start = branch = { x: px, y: b.top }
-      segs.push(swerve(start, { x: x(route.from), y: b.bottom }))
-    }
-    let at = segs.length ? segs[segs.length - 1].to : start
-    for (let k = route.from + 1; k < last; k++) {
-      const nx = x(k)
-      if (nx === at.x) continue
-      const b = bands[k]
-      segs.push({ to: { x: at.x, y: b.top } })
-      at = { x: nx, y: b.bottom }
-      segs.push(swerve(segs[segs.length - 1].to, at))
-    }
-    // Converge on the closing card: in from its nearer side, plugging into the top edge
-    const side = sideAt(last - 1)
-    const inset = 32 + (route.tracks + 1) * Math.min(14, card.right - card.left > 600 ? 14 : 8)
-    const end = { x: side < 0 ? card.left + inset : card.right - inset, y: card.top }
-    const b = bands[last]
-    segs.push({ to: { x: at.x, y: b.top } })
-    segs.push(swerve({ x: at.x, y: b.top }, end))
-    segs.push({ to: { x: end.x, y: end.y + 40 } }) // on behind the card
-    return { ...sample(start, segs), branch, end }
-  })
+  // Each line is the centreline offset to one side, with corners that share a centre so the gap stays even
+  const built = [-gap, gap].map((off) => offsetLine(route, off, radius))
+  const strands = built.map((b) => ({ d: b.d, total: b.total }))
+
+  // Pen keyframes. Each horizontal run (with its two corners) is drawn as the pen crosses a window around its break;
+  // the drops in between fill the rest. Both lines share the keyframes so they stay side by side.
+  const keys: Key[] = [{ pen: 0, len: built.map(() => 0) }]
+  for (let c = 1; c + 1 < route.length - 1; c += 2) {
+    const run = Math.abs(route[c + 1].x - route[c].x)
+    const y = route[c].y
+    const half = Math.min(200, Math.max(70, run * 0.3))
+    keys.push({ pen: y - half, len: built.map((b) => b.corners[c - 1].start) })
+    keys.push({ pen: y + half, len: built.map((b) => b.corners[c].end) })
+  }
+  keys.push({ pen: route[route.length - 1].y, len: built.map((b) => b.total) })
 
   // Ink colour per band: lime on forest sections, forest on sand, blended across each break
   const stops: Stop[] = []
@@ -292,42 +243,80 @@ function measure(page: HTMLElement): Geometry | null {
   })
   stops.push({ offset: 1, inverse: false })
 
-  return { w, h, strands, stops, stroke: wide ? 1.5 : 1.25 }
+  return { w, h, strands, keys, stops, stroke: wide ? 1.25 : 1 }
 }
 
-/** An S-bend from one point down to another: leaves straight down, arrives straight down */
-function swerve(from: Pt, to: Pt): Seg {
-  const mid = (from.y + to.y) / 2
-  return { c1: { x: from.x, y: mid }, c2: { x: to.x, y: mid }, to }
+/**
+ * Offsets an orthogonal route sideways by `off` and rounds every corner. The line on the inside of a turn gets a
+ * tighter radius and the one outside a wider one, so a pair of offsets stays evenly spaced through every bend.
+ * Returns the path, its length, and the length at the start and end of each corner.
+ */
+function offsetLine(route: Pt[], off: number, radius: number) {
+  const dirs = route.slice(1).map((p, i) => unit(route[i], p))
+  const normal = (d: Pt) => ({ x: -d.y, y: d.x })
+  const shift = (p: Pt, n: Pt) => ({ x: p.x + n.x * off, y: p.y + n.y * off })
+
+  const start = shift(route[0], normal(dirs[0]))
+  const segs: Seg[] = []
+  const cornerIdx: number[] = []
+  for (let i = 1; i < route.length - 1; i++) {
+    const din = dirs[i - 1]
+    const dout = dirs[i]
+    const nin = normal(din)
+    const nout = normal(dout)
+    const p = { x: route[i].x + (nin.x + nout.x) * off, y: route[i].y + (nin.y + nout.y) * off }
+    const inside = off * (nin.x * dout.x + nin.y * dout.y) > 0
+    const r = radius + (inside ? -1 : 1) * Math.abs(off)
+    const a = { x: p.x - din.x * r, y: p.y - din.y * r }
+    const b = { x: p.x + dout.x * r, y: p.y + dout.y * r }
+    segs.push({ to: a })
+    cornerIdx.push(segs.length)
+    segs.push({ c1: { x: a.x + din.x * r * KAPPA, y: a.y + din.y * r * KAPPA }, c2: { x: b.x - dout.x * r * KAPPA, y: b.y - dout.y * r * KAPPA }, to: b })
+  }
+  segs.push({ to: shift(route[route.length - 1], normal(dirs[dirs.length - 1])) })
+
+  const { d, ends } = trace(start, segs)
+  return {
+    d,
+    total: ends[ends.length - 1],
+    corners: cornerIdx.map((j) => ({ start: ends[j - 1], end: ends[j] })),
+  }
 }
 
-// ---------------------------------------------------------------------------------------------------------------------
-// Geometry helpers
-
-function sample(start: Pt, segs: Seg[]): Omit<Strand, 'branch' | 'end'> {
-  const ls: number[] = [0]
-  const xs: number[] = [start.x]
-  const ys: number[] = [start.y]
+/** Builds the path data and the running length at the end of each segment */
+function trace(start: Pt, segs: Seg[]) {
   let d = `M${f(start.x)} ${f(start.y)}`
   let p = start
+  let len = 0
+  const ends: number[] = []
   for (const s of segs) {
     if (s.c1 && s.c2) {
       d += `C${f(s.c1.x)} ${f(s.c1.y)} ${f(s.c2.x)} ${f(s.c2.y)} ${f(s.to.x)} ${f(s.to.y)}`
-      const n = 32
-      for (let j = 1; j <= n; j++) push(cubic(p, s.c1, s.c2, s.to, j / n))
+      let q = p
+      for (let j = 1; j <= 16; j++) {
+        const n = cubic(p, s.c1, s.c2, s.to, j / 16)
+        len += Math.hypot(n.x - q.x, n.y - q.y)
+        q = n
+      }
     } else {
       d += `L${f(s.to.x)} ${f(s.to.y)}`
-      push(s.to)
+      len += Math.hypot(s.to.x - p.x, s.to.y - p.y)
     }
+    ends.push(len)
     p = s.to
   }
-  function push(q: Pt) {
-    const i = xs.length - 1
-    ls.push(ls[i] + Math.hypot(q.x - xs[i], q.y - ys[i]))
-    xs.push(q.x)
-    ys.push(Math.max(q.y, ys[i]))
+  return { d, ends }
+}
+
+/** How much of line `i` is drawn when the pen is at height y */
+function lengthAt(keys: Key[], i: number, y: number) {
+  if (y <= keys[0].pen) return keys[0].len[i]
+  for (let k = 1; k < keys.length; k++) {
+    const a = keys[k - 1]
+    const b = keys[k]
+    if (y <= b.pen) return b.pen > a.pen ? a.len[i] + ((y - a.pen) / (b.pen - a.pen)) * (b.len[i] - a.len[i]) : b.len[i]
   }
-  return { d, total: ls[ls.length - 1], ls: new Float32Array(ls), xs: new Float32Array(xs), ys: new Float32Array(ys) }
+  return keys[keys.length - 1].len[i]
 }
 
 function cubic(a: Pt, b: Pt, c: Pt, d: Pt, t: number): Pt {
@@ -338,34 +327,9 @@ function cubic(a: Pt, b: Pt, c: Pt, d: Pt, t: number): Pt {
   }
 }
 
-/** How much of the strand is drawn when the pen is at height y */
-function lengthAtY(s: Strand, y: number) {
-  const { ys, ls } = s
-  const n = ys.length
-  if (y <= ys[0]) return 0
-  if (y >= ys[n - 1]) return s.total
-  let lo = 0
-  let hi = n - 1
-  while (hi - lo > 1) {
-    const mid = (lo + hi) >> 1
-    if (ys[mid] < y) lo = mid
-    else hi = mid
-  }
-  const span = ys[hi] - ys[lo]
-  return span > 0 ? ls[lo] + ((y - ys[lo]) / span) * (ls[hi] - ls[lo]) : ls[hi]
-}
-
-function pointAt(s: Strand, len: number): Pt {
-  const { ls, xs, ys } = s
-  let lo = 0
-  let hi = ls.length - 1
-  while (hi - lo > 1) {
-    const mid = (lo + hi) >> 1
-    if (ls[mid] < len) lo = mid
-    else hi = mid
-  }
-  const t = ls[hi] > ls[lo] ? (len - ls[lo]) / (ls[hi] - ls[lo]) : 0
-  return { x: xs[lo] + (xs[hi] - xs[lo]) * t, y: ys[lo] + (ys[hi] - ys[lo]) * t }
+function unit(a: Pt, b: Pt): Pt {
+  const l = Math.hypot(b.x - a.x, b.y - a.y) || 1
+  return { x: (b.x - a.x) / l, y: (b.y - a.y) / l }
 }
 
 const f = (n: number) => n.toFixed(1)
