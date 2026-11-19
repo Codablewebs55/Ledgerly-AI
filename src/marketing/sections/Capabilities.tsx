@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { Badge } from '@/ds'
+import { Badge, Card } from '@/ds'
 import { cx } from '@/ds/utils/cx'
 import { Accent, Reveal, SectionHeading, Shot } from '../parts'
 import { stills } from '../stills'
@@ -18,14 +18,14 @@ type TileProps = { label: string; title: string; body: string; children: ReactNo
 function Tile({ label, title, body, children, className, centered }: TileProps) {
   return (
     <Reveal className={className}>
-      <article className="flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface">
+      <Card as="article" radius="xl" padding="none" className="flex h-full flex-col overflow-hidden">
         <div className="p-6 md:p-8">
-          <Badge tone="accent" style={{ backgroundColor: "var(--ldg-bg-accent-subtle)" }}>{label}</Badge>
+          <Badge tone="accent">{label}</Badge>
           <h3 className="mt-4 font-display text-heading-lg text-fg">{title}</h3>
           <p className="mt-2 max-w-[30rem] text-body-sm text-fg-muted md:text-body-md">{body}</p>
         </div>
         <div className={cx('flex flex-1 flex-col bg-surface-sunken px-6 pt-6 md:px-8 md:pt-8', centered ? 'justify-center pb-6 md:pb-8' : 'justify-end')}>{children}</div>
-      </article>
+      </Card>
     </Reveal>
   )
 }
@@ -34,7 +34,7 @@ function Tile({ label, title, body, children, className, centered }: TileProps) 
 export function Capabilities() {
   return (
     <section id="features" aria-labelledby="features-title" className="scroll-mt-20 bg-canvas pb-20 md:pb-28">
-      <div className="mx-auto max-w-[80rem] px-4 md:px-8">
+      <div className="mx-auto max-w-(--ldg-content-max) px-4 md:px-8">
         <SectionHeading
           id="features-title"
           eyebrow="What Ledgerly does"
@@ -47,7 +47,7 @@ export function Capabilities() {
 
         {/* Invoicing: the wide feature, the form and the list it feeds */}
         <Reveal className="mt-12 lg:mt-16">
-          <article className="grid overflow-hidden rounded-2xl border border-line bg-surface lg:grid-cols-12">
+          <Card as="article" radius="2xl" padding="none" className="grid overflow-hidden lg:grid-cols-12">
             <div className="flex flex-col p-6 md:p-10 lg:col-span-5">
               <Badge tone="accent">Invoicing</Badge>
               <h3 className="mt-4 font-display text-display-lg text-fg">Get paid without the chasing.</h3>
@@ -61,8 +61,8 @@ export function Capabilities() {
                 {invoicing.map((item, i) => (
                   <li
                     key={item}
-                    style={{ backgroundColor: "var(--ldg-bg-brand)", borderTopColor: "var(--ldg-fg-inverse-accent)", borderRightColor: "var(--ldg-fg-inverse-accent)", borderBottomColor: "var(--ldg-fg-inverse-accent)", borderLeftColor: "var(--ldg-fg-inverse-accent)", borderBottomLeftRadius: "16px", marginTop: "-16px", marginBottom: "0px", borderBottomRightRadius: "16px", color: "var(--color-line-control)", ['--i' as string]: i }}
-                    className={cx('group/row flex items-center justify-between gap-3 rounded-xl border-2 border-surface/70 px-5 pt-6 pb-8 text-body-md font-medium text-fg', i > 0 && '-mt-2', i === invoicing.length - 1 && 'pb-6', 'relative transition-[translate,box-shadow] duration-(--duration-slow) ease-standard hover:z-10 motion-safe:group-hover/stack:translate-y-[calc(var(--i)*8px)] motion-safe:group-hover/stack:hover:translate-y-[calc(var(--i)*8px_-_10px)] motion-safe:hover:translate-x-4 hover:shadow-lg')}
+                    style={{ ['--i' as string]: i }}
+                    className={cx('group/row -mt-4 flex items-center justify-between gap-3 rounded-xl border-2 border-line-inverse-accent bg-brand px-5 pt-6 pb-8 text-body-md font-medium text-fg-inverse', i === invoicing.length - 1 && 'pb-6', 'relative transition-[translate,box-shadow] duration-(--duration-slow) ease-standard hover:z-10 motion-safe:group-hover/stack:translate-y-[calc(var(--i)*8px)] motion-safe:group-hover/stack:hover:translate-y-[calc(var(--i)*8px_-_10px)] motion-safe:hover:translate-x-4 hover:shadow-lg')}
                   >
                     {item}
                     <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent text-fg-on-accent ring-1 ring-surface transition-transform duration-(--duration-slow) ease-standard motion-safe:group-hover/row:scale-115 motion-safe:group-hover/row:rotate-[360deg]">
@@ -86,7 +86,7 @@ export function Capabilities() {
                 className="absolute top-8 left-6 w-[190%] md:top-28 md:left-24 md:w-[105%]"
               />
             </div>
-          </article>
+          </Card>
         </Reveal>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-6">

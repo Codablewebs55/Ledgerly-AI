@@ -1,33 +1,42 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router'
-import { Logo } from '@/ds/brand/Logo'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { ToastProvider } from '@/ds'
+import { NotFoundPage, ShellPage } from '@/app/pages/ShellPage'
+import { shellPages } from '@/app/pages/shell-pages'
+import AppShell from '@/app/shell/AppShell'
+import CreateInvoicePage from '@/app/pages/CreateInvoicePage'
+import DashboardPage from '@/app/pages/DashboardPage'
+import InvoicesPage from '@/app/pages/InvoicesPage'
+import ComponentsPage from '@/showcase/ComponentsPage'
+import DesignSystemLayout from '@/showcase/DesignSystemLayout'
 import FoundationsPage from '@/showcase/FoundationsPage'
-
-function Placeholder({ title }: { title: string }) {
-  return (
-    <main className="grid min-h-screen place-items-center bg-canvas p-6 text-fg">
-      <div className="flex flex-col items-center text-center">
-        <Logo />
-        <h1 className="mt-6 text-heading-xl">{title}</h1>
-        <p className="mt-2 text-body-sm text-fg-subtle">Arrives in a later stage.</p>
-        <nav className="mt-6 flex justify-center gap-4 text-body-sm text-fg-brand underline">
-          <Link to="/">Marketing</Link>
-          <Link to="/app">App</Link>
-          <Link to="/design-system/foundations">Foundations</Link>
-        </nav>
-      </div>
-    </main>
-  )
-}
+import LandingPage from '@/marketing/LandingPage'
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Placeholder title="Marketing site" />} />
-        <Route path="/app/*" element={<Placeholder title="Accounting app" />} />
-        <Route path="/design-system" element={<Navigate to="/design-system/foundations" replace />} />
-        <Route path="/design-system/foundations" element={<FoundationsPage />} />
-      </Routes>
-    </BrowserRouter>
+    <ToastProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/app" element={<AppShell />}>
+            <Route index element={<DashboardPage />} />
+            <Route path="invoices" element={<InvoicesPage />} />
+            <Route path="invoices/new" element={<CreateInvoicePage />} />
+            <Route path="expenses" element={<ShellPage {...shellPages.expenses} />} />
+            <Route path="transactions" element={<ShellPage {...shellPages.transactions} />} />
+            <Route path="banking" element={<ShellPage {...shellPages.banking} />} />
+            <Route path="reports" element={<ShellPage {...shellPages.reports} />} />
+            <Route path="customers" element={<ShellPage {...shellPages.customers} />} />
+            <Route path="settings" element={<ShellPage {...shellPages.settings} />} />
+            <Route path="help" element={<ShellPage {...shellPages.help} />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+          <Route path="/design-system" element={<DesignSystemLayout />}>
+            <Route index element={<Navigate to="foundations" replace />} />
+            <Route path="foundations" element={<FoundationsPage />} />
+            <Route path="components" element={<ComponentsPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
   )
 }

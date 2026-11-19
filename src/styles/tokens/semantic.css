@@ -27,6 +27,8 @@
   --ldg-bg-surface-selected: var(--ldg-forest-50); /* selected row, active nav item */
   --ldg-bg-inverse: var(--ldg-forest-950); /* dark brand bands, sidebar, tooltips */
   --ldg-bg-inverse-raised: var(--ldg-forest-900); /* cards placed on inverse */
+  --ldg-bg-inverse-sunken: var(--ldg-forest-975); /* recessed bands on inverse, e.g. the workspace card upgrade band */
+  --ldg-bg-inverse-chip: var(--ldg-forest-700); /* pills and chips on inverse, e.g. the plan badge */
   --ldg-bg-overlay: rgb(23 21 17 / 0.48); /* modal scrim */
 
   /* Brand (forest) — primary actions, brand moments ---------------------- */
@@ -41,11 +43,13 @@
   --ldg-bg-accent: var(--ldg-lime-300);
   --ldg-bg-accent-hover: var(--ldg-lime-400);
   --ldg-bg-accent-subtle: var(--ldg-lime-100);
+  --ldg-bg-accent-muted: var(--ldg-lime-200); /* header band on insight cards */
 
   /* Foreground ----------------------------------------------------------- */
   --ldg-fg-default: var(--ldg-sand-900); /* body copy, headings, figures */
   --ldg-fg-muted: var(--ldg-sand-700); /* secondary text, labels */
   --ldg-fg-subtle: var(--ldg-sand-600); /* captions, helper text, placeholders */
+  --ldg-fg-icon: var(--ldg-sand-700); /* decorative icons in tiles and headers (#524c40) */
   --ldg-fg-disabled: var(--ldg-sand-400); /* disabled text (exempt from AA) */
   --ldg-fg-brand: var(--ldg-forest-700); /* brand-coloured text, links */
   --ldg-fg-brand-strong: var(--ldg-forest-800); /* link hover */
@@ -54,18 +58,30 @@
   --ldg-fg-on-accent: var(--ldg-forest-950); /* text on bg-accent */
   --ldg-fg-inverse: var(--ldg-sand-50); /* text on bg-inverse */
   --ldg-fg-inverse-muted: var(--ldg-forest-200); /* secondary text on bg-inverse */
+  --ldg-fg-inverse-subtle: var(--ldg-sage-400); /* section labels and tertiary text on bg-inverse */
   --ldg-fg-inverse-accent: var(--ldg-lime-300); /* highlight text on bg-inverse */
 
   /* Lines ----------------------------------------------------------------- */
   --ldg-line-subtle: var(--ldg-sand-100); /* row dividers inside cards */
   --ldg-line-default: var(--ldg-sand-200); /* card borders, section dividers */
   --ldg-line-strong: var(--ldg-sand-300); /* emphasised dividers */
+  --ldg-line-control: var(--ldg-sand-200); /* outline of secondary / outline buttons (#e8e3d7) */
   --ldg-line-input: var(--ldg-sand-500); /* form control borders (≥3:1, WCAG 1.4.11) */
   --ldg-line-input-hover: var(--ldg-sand-600);
+  /* Text fields, selects, textareas. Deliberately quiet: the label and the
+     focus ring carry discoverability; the border only frames the field. */
+  --ldg-line-field: var(--ldg-sand-200); /* empty */
+  --ldg-line-field-filled: var(--ldg-sand-300); /* has a value */
+  --ldg-line-field-hover: var(--ldg-sand-400);
   --ldg-line-focus: var(--ldg-forest-600); /* focus ring (≥3:1 on every light surface) */
   --ldg-line-focus-inverse: var(--ldg-lime-300); /* focus ring on bg-inverse / bg-brand */
   --ldg-line-brand: var(--ldg-forest-700); /* selected/checked control borders */
+  --ldg-line-invalid: var(--ldg-red-600); /* invalid form-control border (≥3:1, WCAG 1.4.11) */
   --ldg-line-inverse: var(--ldg-forest-800); /* dividers on bg-inverse */
+  --ldg-line-inverse-accent: var(--ldg-lime-300); /* lime outlines on bg-inverse / bg-brand, e.g. the Recommended plan badge */
+  --ldg-line-accent: var(--ldg-lime-400); /* dividers inside accent-tinted surfaces, e.g. insight card rows */
+  --ldg-line-on-accent: var(--ldg-lime-500); /* dividers on bg-accent, e.g. the marketing footer */
+  --ldg-fg-on-accent-muted: var(--ldg-forest-700); /* secondary text on bg-accent */
 
   /* Status ---------------------------------------------------------------
      bg-*-subtle + fg-* = badge/banner pair; bg-* solid + fg-on-* = strong. */
@@ -85,6 +101,11 @@
   --ldg-fg-on-warning: var(--ldg-amber-900);
   --ldg-line-warning: var(--ldg-amber-300);
 
+  /* Draft: unsent work. Stronger amber tint than warning so "Draft" and "Due soon" stay distinct. */
+  --ldg-bg-draft: var(--ldg-amber-600);
+  --ldg-bg-draft-subtle: var(--ldg-amber-100);
+  --ldg-fg-draft: var(--ldg-amber-700);
+
   --ldg-bg-info: var(--ldg-blue-600);
   --ldg-bg-info-subtle: var(--ldg-blue-50);
   --ldg-fg-info: var(--ldg-blue-600);
@@ -101,6 +122,7 @@
   --ldg-chart-5: var(--ldg-slate-500);
   --ldg-chart-6: var(--ldg-forest-400);
   --ldg-chart-highlight: var(--ldg-lime-300);
+  --ldg-chart-highlight-strong: var(--ldg-lime-500); /* outline + hatch of a highlight-series bar still in progress */
   --ldg-chart-grid: var(--ldg-sand-200);
   --ldg-chart-positive: var(--ldg-forest-500);
   --ldg-chart-negative: var(--ldg-red-400);
@@ -109,13 +131,18 @@
   --ldg-page-gutter: 1rem; /* 16px mobile → 24px tablet → 32px desktop */
   --ldg-section-gap: 1.5rem; /* between stacked app sections */
   --ldg-marketing-section-y: 4rem; /* vertical padding of marketing sections */
-  --ldg-content-max: 80rem; /* 1280px app content max width */
+  --ldg-content-max: 80rem; /* 1280px app and marketing content max width */
+  --ldg-prose-max: 34rem; /* 544px reading measure for lead paragraphs and section intros */
   --ldg-sidebar-width: 15.5rem; /* 248px */
   --ldg-topbar-height: 4rem; /* 64px */
+  --ldg-marketing-nav-height: 4rem; /* 64px mobile → 72px tablet+; the hero pulls up under it */
+  --ldg-sidebar-rail-width: 4.5rem; /* 72px — collapsed icon rail, tablet */
+  --ldg-sheet-width: 26rem; /* 416px — side panels such as the AI assistant */
 }
 
 @media (min-width: 48rem) {
   :root {
+    --ldg-marketing-nav-height: 4.5rem;
     --ldg-page-gutter: 1.5rem;
     --ldg-section-gap: 2rem;
     --ldg-marketing-section-y: 6rem;
@@ -146,6 +173,8 @@
   --ldg-bg-surface-selected: #16291f;
   --ldg-bg-inverse: var(--ldg-sand-50);
   --ldg-bg-inverse-raised: var(--ldg-sand-0);
+  --ldg-bg-inverse-sunken: var(--ldg-sand-100);
+  --ldg-bg-inverse-chip: var(--ldg-sand-200);
   --ldg-bg-overlay: rgb(0 0 0 / 0.64);
 
   --ldg-bg-brand: var(--ldg-forest-300);
@@ -157,10 +186,12 @@
   --ldg-bg-accent: var(--ldg-lime-300);
   --ldg-bg-accent-hover: var(--ldg-lime-200);
   --ldg-bg-accent-subtle: #262d10;
+  --ldg-bg-accent-muted: #323b14;
 
   --ldg-fg-default: var(--ldg-sand-50);
   --ldg-fg-muted: var(--ldg-sand-300);
   --ldg-fg-subtle: var(--ldg-sand-400);
+  --ldg-fg-icon: var(--ldg-sand-300);
   --ldg-fg-disabled: var(--ldg-sand-600);
   --ldg-fg-brand: var(--ldg-forest-300);
   --ldg-fg-brand-strong: var(--ldg-forest-200);
@@ -169,17 +200,27 @@
   --ldg-fg-on-accent: var(--ldg-forest-950);
   --ldg-fg-inverse: var(--ldg-sand-900);
   --ldg-fg-inverse-muted: var(--ldg-sand-700);
+  --ldg-fg-inverse-subtle: var(--ldg-sand-500);
   --ldg-fg-inverse-accent: var(--ldg-forest-700);
 
   --ldg-line-subtle: #26231d;
   --ldg-line-default: #34302a;
   --ldg-line-strong: #46413a;
+  --ldg-line-control: #34302a;
   --ldg-line-input: var(--ldg-sand-500);
   --ldg-line-input-hover: var(--ldg-sand-400);
+  --ldg-line-field: #34302a;
+  --ldg-line-field-filled: #46413a;
+  --ldg-line-field-hover: var(--ldg-sand-600);
   --ldg-line-focus: var(--ldg-lime-300);
   --ldg-line-focus-inverse: var(--ldg-forest-700);
   --ldg-line-brand: var(--ldg-forest-300);
+  --ldg-line-invalid: var(--ldg-red-400);
   --ldg-line-inverse: var(--ldg-sand-200);
+  --ldg-line-inverse-accent: var(--ldg-forest-700);
+  --ldg-line-accent: var(--ldg-lime-800);
+  --ldg-line-on-accent: var(--ldg-lime-600);
+  --ldg-fg-on-accent-muted: var(--ldg-forest-800);
 
   --ldg-bg-positive: var(--ldg-forest-300);
   --ldg-bg-positive-subtle: #16291f;
@@ -197,6 +238,10 @@
   --ldg-fg-on-warning: var(--ldg-amber-900);
   --ldg-line-warning: var(--ldg-amber-700);
 
+  --ldg-bg-draft: var(--ldg-amber-400);
+  --ldg-bg-draft-subtle: #3a2c0c;
+  --ldg-fg-draft: var(--ldg-amber-300);
+
   --ldg-bg-info: var(--ldg-blue-300);
   --ldg-bg-info-subtle: #141f30;
   --ldg-fg-info: var(--ldg-blue-300);
@@ -209,6 +254,7 @@
   --ldg-chart-5: var(--ldg-clay-400);
   --ldg-chart-6: var(--ldg-slate-400);
   --ldg-chart-highlight: var(--ldg-lime-300);
+  --ldg-chart-highlight-strong: var(--ldg-lime-400);
   --ldg-chart-grid: #34302a;
   --ldg-chart-positive: var(--ldg-forest-300);
   --ldg-chart-negative: var(--ldg-red-400);

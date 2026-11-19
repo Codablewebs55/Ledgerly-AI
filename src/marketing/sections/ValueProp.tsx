@@ -13,7 +13,7 @@ const pillars = [
 export function ValueProp() {
   return (
     <section aria-labelledby="value-title" className="bg-canvas py-20 md:py-28">
-      <div className="mx-auto max-w-[80rem] px-4 md:px-8">
+      <div className="mx-auto max-w-(--ldg-content-max) px-4 md:px-8">
         <SectionHeading
           id="value-title"
           title={

@@ -1,5 +1,5 @@
 import { ArrowRight, Check } from 'lucide-react'
-import { Badge, Button } from '@/ds'
+import { Badge, Button, Card } from '@/ds'
 import { cx } from '@/ds/utils/cx'
 import { Accent, Reveal, SectionHeading } from '../parts'
 
@@ -28,8 +28,8 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="pricing" aria-labelledby="pricing-title" className="scroll-mt-20 bg-canvas pb-20 md:pb-28">
-      <div className="mx-auto max-w-[80rem] px-4 md:px-8">
+    <section id="pricing" aria-labelledby="pricing-title" className="scroll-mt-20 bg-canvas py-20 md:py-28">
+      <div className="mx-auto max-w-(--ldg-content-max) px-4 md:px-8">
         <SectionHeading
           id="pricing-title"
           eyebrow="Pricing"
@@ -44,18 +44,19 @@ export function Pricing() {
         <ul className="mt-12 grid gap-4 lg:mt-16 lg:grid-cols-3 lg:items-stretch">
           {plans.map((p, i) => (
             <Reveal as="li" key={p.name} delay={i * 110}>
-              <article
+              <Card
+                as="article"
                 aria-labelledby={`plan-${p.name}`}
-                className={cx(
-                  'flex h-full flex-col rounded-2xl border p-6 md:p-8',
-                  p.recommended ? 'border-transparent bg-inverse text-fg-inverse shadow-xl' : 'border-line bg-surface text-fg',
-                )}
+                tone={p.recommended ? 'inverse' : 'default'}
+                radius="2xl"
+                padding="lg"
+                className={cx('flex h-full flex-col', p.recommended && 'shadow-xl')}
               >
                 <div className="flex items-center justify-between gap-3">
                   <h3 id={`plan-${p.name}`} className="font-display text-heading-lg">
                     {p.name}
                   </h3>
-                  {p.recommended && <Badge tone="accent" style={{ paddingLeft: "10px", paddingRight: "10px" }}>Recommended</Badge>}
+                  {p.recommended && <Badge tone="inverse-accent">Recommended</Badge>}
                 </div>
                 <p className={cx('mt-2 text-body-sm', p.recommended ? 'text-fg-inverse-muted' : 'text-fg-muted')}>{p.for}</p>
                 <p className="mt-6 flex items-baseline gap-1.5">
@@ -75,7 +76,7 @@ export function Pricing() {
                     Start with {p.name}
                   </Button>
                 </div>
-              </article>
+              </Card>
             </Reveal>
           ))}
         </ul>

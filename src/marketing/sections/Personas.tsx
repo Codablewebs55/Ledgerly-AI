@@ -1,4 +1,4 @@
-import { Avatar, Badge } from '@/ds'
+import { Avatar, Badge, Card } from '@/ds'
 import { Accent, Reveal, SectionHeading } from '../parts'
 
 // Illustrative scenarios for who Ledgerly is built for. These are not customers and not quotes, and the page says so.
@@ -28,7 +28,7 @@ const personas = [
 export function Personas() {
   return (
     <section aria-labelledby="personas-title" className="bg-canvas pt-8 pb-20 md:pt-12 md:pb-28">
-      <div className="mx-auto max-w-[80rem] px-4 md:px-8">
+      <div className="mx-auto max-w-(--ldg-content-max) px-4 md:px-8">
         <SectionHeading
           id="personas-title"
           eyebrow="Who it is for"
@@ -41,7 +41,8 @@ export function Personas() {
 
         <ul className="mt-12 grid gap-4 md:grid-cols-3 lg:mt-16">
           {personas.map((p, i) => (
-            <Reveal as="li" key={p.name} delay={i * 110} className="flex flex-col rounded-xl border border-line bg-surface p-6">
+            <Reveal as="li" key={p.name} delay={i * 110}>
+              <Card radius="xl" padding="none" className="flex h-full flex-col p-6">
               <div className="flex items-center gap-3">
                 <Avatar name={p.avatar ?? p.name} size="lg" shape="square" tone="accent" />
                 <div className="min-w-0">
@@ -57,7 +58,8 @@ export function Personas() {
                   </Badge>
                 ))}
               </div>
-            </Reveal>
+            </Card>
+</Reveal>
           ))}
         </ul>
       </div>

@@ -35,8 +35,8 @@ export function Hero() {
   useEasedScroll(copy)
 
   return (
-    <section aria-labelledby="hero-title" className="relative -mt-16 overflow-x-clip bg-inverse pt-16 text-fg-inverse md:-mt-[4.5rem] md:pt-[4.5rem]">
-      <div className="mx-auto max-w-[80rem] px-4 pt-14 md:px-8 md:pt-20 lg:pt-24">
+    <section aria-labelledby="hero-title" className="relative -mt-(--ldg-marketing-nav-height) overflow-x-clip bg-inverse pt-(--ldg-marketing-nav-height) text-fg-inverse">
+      <div className="mx-auto max-w-(--ldg-content-max) px-4 pt-14 md:px-8 md:pt-20 lg:pt-24">
         <div ref={copy} className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-10">
           <h1
             id="hero-title"
@@ -49,7 +49,7 @@ export function Hero() {
             </span>
           </h1>
           <div className={cx('lg:col-span-5 lg:pb-2', MOTION_ENABLED && 'animate-rise-in [animation-delay:360ms]')} style={reduced ? undefined : glide(0.2)}>
-            <p className="max-w-[34rem] text-body-md text-fg-inverse-muted md:text-body-lg">
+            <p className="max-w-(--ldg-prose-max) text-body-md text-fg-inverse-muted md:text-body-lg">
               From invoices and expenses to banking and financial insights, Ledgerly brings everything together so you can understand your numbers, automate the busywork and make
               better business decisions.
             </p>

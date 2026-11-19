@@ -52,6 +52,34 @@
   }
 }
 
+/* Form-field borders by state. Empty fields are quiet; once a field holds a
+   value the border steps up slightly; hover one more step; focus is forest.
+   "Filled" = an input/textarea whose placeholder isn't showing, or a select
+   whose chosen option isn't the empty placeholder option. Error and disabled
+   utility classes (utilities layer) still override these. */
+@layer components {
+  .ldg-field {
+    border-color: var(--ldg-line-field);
+  }
+  /* :where() keeps these at single-class specificity so hover and focus,
+     declared later, always win. */
+  .ldg-field:where(:has(input:not(:placeholder-shown)), :has(textarea:not(:placeholder-shown)), :has(select)) {
+    border-color: var(--ldg-line-field-filled);
+  }
+  /* A select still on its empty placeholder option counts as empty. Kept as
+     its own rule: :has() can't nest, and one invalid selector would drop the
+     whole list. */
+  .ldg-field:where(:has(option[value='']:checked)) {
+    border-color: var(--ldg-line-field);
+  }
+  .ldg-field:hover {
+    border-color: var(--ldg-line-field-hover);
+  }
+  .ldg-field:focus-within {
+    border-color: var(--ldg-line-brand);
+  }
+}
+
 /* `figure` — financial numbers: tabular, lining, slashed zero off. Use on
    every amount, count, percentage and date column. */
 @utility figure {

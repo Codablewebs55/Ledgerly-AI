@@ -1,7 +1,9 @@
 {
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  // Mirrors tsconfig.app.json so tools that read only the root config
+  // (Tempo's canvas host via vite-tsconfig-paths) resolve "@/…" too.
+  "compilerOptions": {
+    "paths": { "@/*": ["./src/*"] }
+  }
 }

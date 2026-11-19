@@ -1,7 +1,8 @@
 import { Quote } from 'lucide-react'
-import { Avatar } from '@/ds'
+import { Avatar, Card } from '@/ds'
 import { cx } from '@/ds/utils/cx'
 import { Accent, Reveal, SectionHeading } from '../parts'
+import { stills } from '../stills'
 
 // Ledgerly has no customers yet, so these are placeholder quotes written around the sample personas. Every card is
 // attributed to a persona, never a named person or business. Swap in real, approved
@@ -31,7 +32,7 @@ export function Testimonials() {
 
   return (
     <section aria-labelledby="testimonials-title" className="bg-inverse py-20 text-fg-inverse md:py-28">
-      <div className="mx-auto max-w-[80rem] px-4 md:px-8">
+      <div className="mx-auto max-w-(--ldg-content-max) px-4 md:px-8">
         <SectionHeading
           id="testimonials-title"
           inverse
@@ -51,6 +52,15 @@ export function Testimonials() {
               <blockquote className="mt-6 font-display text-heading-xl lg:text-display-lg">“{featured.quote}”</blockquote>
               <div className="mt-auto flex items-end justify-between gap-6 pt-10">
                 <Attribution {...featured} onAccent />
+                <img
+                  src={stills.testimonialFace.src}
+                  width={stills.testimonialFace.w}
+                  height={stills.testimonialFace.h}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="size-14 shrink-0 rounded-lg border-3 border-surface object-cover shadow-md md:size-16"
+                />
               </div>
             </figure>
           </Reveal>
@@ -58,10 +68,10 @@ export function Testimonials() {
           <div className="flex flex-col gap-4 lg:col-span-5">
             {rest.map((q, i) => (
               <Reveal key={q.persona} delay={(i + 1) * 120} className="flex-1">
-                <figure className="flex h-full flex-col rounded-2xl border border-line-inverse bg-inverse-raised p-6 md:p-8">
+                <Card as="figure" tone="inverse-raised" radius="2xl" padding="lg" className="flex h-full flex-col">
                   <blockquote className="text-body-md text-fg-inverse md:text-body-lg">“{q.quote}”</blockquote>
                   <Attribution {...q} className="mt-auto pt-8" />
-                </figure>
+                </Card>
               </Reveal>
             ))}
           </div>
@@ -77,10 +87,10 @@ type AttributionProps = { name?: string; persona: string; detail: string; onAcce
 function Attribution({ name, persona, detail, onAccent, className }: AttributionProps) {
   return (
     <figcaption className={cx('flex flex-wrap items-center gap-3', className)}>
-      <Avatar name={name ?? persona} size="lg" shape="square" tone={onAccent ? 'auto' : 'accent'} />
+      <Avatar name={name ?? persona} size="lg" shape="square" tone={onAccent ? 'brand' : 'accent'} />
       <div className="min-w-0">
         <p className={cx('text-body-sm font-semibold', onAccent ? 'text-fg-on-accent' : 'text-fg-inverse')}>{name ? `${name} - ${persona}` : persona}</p>
-        <p className={cx('text-caption', onAccent ? 'text-fg-on-accent/75' : 'text-fg-inverse-muted')}>{detail}</p>
+        <p className={cx('text-caption', onAccent ? 'text-fg-on-accent-muted' : 'text-fg-inverse-muted')}>{detail}</p>
       </div>
     </figcaption>
   )

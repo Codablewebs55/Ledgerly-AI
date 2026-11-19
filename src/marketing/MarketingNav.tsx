@@ -28,7 +28,7 @@ export function MarketingNav() {
         scrolled ? 'border-line-inverse bg-inverse' : 'border-transparent bg-transparent',
       )}
     >
-      <nav aria-label="Main" className="relative mx-auto flex h-16 max-w-[80rem] items-center gap-8 px-4 md:h-[4.5rem] md:px-8">
+      <nav aria-label="Main" className="relative mx-auto flex h-(--ldg-marketing-nav-height) max-w-(--ldg-content-max) items-center gap-8 px-4 md:px-8">
         <Link to="/" aria-label="Ledgerly home" className="shrink-0 rounded-md focus-visible:outline-line-focus-inverse">
           <Logo tone="inverse" />
         </Link>

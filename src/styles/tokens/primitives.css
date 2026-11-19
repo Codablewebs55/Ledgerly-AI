@@ -24,6 +24,8 @@
   --ldg-forest-800: #133f2e;
   --ldg-forest-900: #0f3225;
   --ldg-forest-950: #0a231a;
+  --ldg-forest-975: #05120d;
+  --ldg-sage-400: #7c9987; /* desaturated forest for quiet labels on the rail */
 
   /* Lime — accent. Soft, slightly desaturated. Light steps (200–400) are
      for highlights on forest/dark surfaces and the single key CTA; dark

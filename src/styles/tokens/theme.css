@@ -24,6 +24,8 @@
   --color-surface-selected: var(--ldg-bg-surface-selected);
   --color-inverse: var(--ldg-bg-inverse);
   --color-inverse-raised: var(--ldg-bg-inverse-raised);
+  --color-inverse-sunken: var(--ldg-bg-inverse-sunken);
+  --color-inverse-chip: var(--ldg-bg-inverse-chip);
   --color-overlay: var(--ldg-bg-overlay);
 
   /* Brand & accent → bg-brand, bg-accent … */
@@ -35,32 +37,44 @@
   --color-accent: var(--ldg-bg-accent);
   --color-accent-hover: var(--ldg-bg-accent-hover);
   --color-accent-subtle: var(--ldg-bg-accent-subtle);
+  --color-accent-muted: var(--ldg-bg-accent-muted);
 
   /* Foreground → text-fg, text-fg-muted, text-fg-on-brand … */
   --color-fg: var(--ldg-fg-default);
   --color-fg-muted: var(--ldg-fg-muted);
   --color-fg-subtle: var(--ldg-fg-subtle);
+  --color-fg-icon: var(--ldg-fg-icon);
   --color-fg-disabled: var(--ldg-fg-disabled);
   --color-fg-brand: var(--ldg-fg-brand);
   --color-fg-brand-strong: var(--ldg-fg-brand-strong);
   --color-fg-accent: var(--ldg-fg-accent);
   --color-fg-on-brand: var(--ldg-fg-on-brand);
   --color-fg-on-accent: var(--ldg-fg-on-accent);
+  --color-fg-on-accent-muted: var(--ldg-fg-on-accent-muted);
   --color-fg-on-warning: var(--ldg-fg-on-warning);
   --color-fg-inverse: var(--ldg-fg-inverse);
   --color-fg-inverse-muted: var(--ldg-fg-inverse-muted);
+  --color-fg-inverse-subtle: var(--ldg-fg-inverse-subtle);
   --color-fg-inverse-accent: var(--ldg-fg-inverse-accent);
 
   /* Lines → border-line, border-line-input, ring-line-focus … */
   --color-line: var(--ldg-line-default);
   --color-line-subtle: var(--ldg-line-subtle);
   --color-line-strong: var(--ldg-line-strong);
+  --color-line-control: var(--ldg-line-control);
   --color-line-input: var(--ldg-line-input);
   --color-line-input-hover: var(--ldg-line-input-hover);
+  --color-line-field: var(--ldg-line-field);
+  --color-line-field-filled: var(--ldg-line-field-filled);
+  --color-line-field-hover: var(--ldg-line-field-hover);
   --color-line-focus: var(--ldg-line-focus);
   --color-line-focus-inverse: var(--ldg-line-focus-inverse);
   --color-line-brand: var(--ldg-line-brand);
+  --color-line-invalid: var(--ldg-line-invalid);
   --color-line-inverse: var(--ldg-line-inverse);
+  --color-line-inverse-accent: var(--ldg-line-inverse-accent);
+  --color-line-accent: var(--ldg-line-accent);
+  --color-line-on-accent: var(--ldg-line-on-accent);
 
   /* Status → bg-positive-subtle text-fg-positive border-line-positive … */
   --color-positive: var(--ldg-bg-positive);
@@ -75,6 +89,9 @@
   --color-warning-subtle: var(--ldg-bg-warning-subtle);
   --color-fg-warning: var(--ldg-fg-warning);
   --color-line-warning: var(--ldg-line-warning);
+  --color-draft: var(--ldg-bg-draft);
+  --color-draft-subtle: var(--ldg-bg-draft-subtle);
+  --color-fg-draft: var(--ldg-fg-draft);
   --color-info: var(--ldg-bg-info);
   --color-info-subtle: var(--ldg-bg-info-subtle);
   --color-fg-info: var(--ldg-fg-info);
@@ -88,6 +105,7 @@
   --color-chart-5: var(--ldg-chart-5);
   --color-chart-6: var(--ldg-chart-6);
   --color-chart-highlight: var(--ldg-chart-highlight);
+  --color-chart-highlight-strong: var(--ldg-chart-highlight-strong);
   --color-chart-grid: var(--ldg-chart-grid);
   --color-chart-positive: var(--ldg-chart-positive);
   --color-chart-negative: var(--ldg-chart-negative);
@@ -143,6 +161,9 @@
   --text-label--font-weight: 500;
   --text-caption: 0.75rem; /* 12 — helper text, timestamps, axis labels */
   --text-caption--line-height: 1.35;
+  --text-micro: 0.625rem; /* 10 — initials in the smallest avatar only; never body copy */
+  --text-micro--line-height: 1;
+  --text-micro--font-weight: 600;
   /* Financial figures — always rendered with `tabular-nums` (see `figure`). */
   --text-figure-xl: 2rem; /* 32 — hero KPI */
   --text-figure-xl--line-height: 1.15;
@@ -200,12 +221,162 @@
   --duration-slow: 320ms; /* panels, drawers, dialogs */
   --duration-slower: 480ms; /* page-level, charts drawing in */
 
+  /* Named animations (entrances only — exits are instant for snappiness). */
+  --animate-fade-in: ldg-fade-in var(--duration-base) var(--ease-standard);
+  --animate-dialog-in: ldg-dialog-in var(--duration-slow) var(--ease-enter);
+  --animate-sheet-in: ldg-sheet-in var(--duration-slow) var(--ease-enter);
+  --animate-toast-in: ldg-toast-in var(--duration-slow) var(--ease-enter);
+  --animate-menu-in: ldg-menu-in var(--duration-fast) var(--ease-enter);
+  --animate-drawer-left-in: ldg-drawer-left-in var(--duration-slow) var(--ease-enter);
+  --animate-drawer-right-in: ldg-drawer-right-in var(--duration-slow) var(--ease-enter);
+  /* Page-load entrances for marketing heroes: slow, cinematic, collapse to nothing under reduced motion. */
+  --animate-rise-in: ldg-rise-in calc(var(--duration-slower) * 2.5) var(--ease-enter) backwards;
+  --animate-stage-in: ldg-stage-in calc(var(--duration-slower) * 3.5) var(--ease-enter) backwards;
+  /* Marching dashes along an SVG stroke drawn with pathLength="1000" and stroke-dasharray="3 2"; stops under reduced motion */
+  --animate-dash-flow: ldg-dash-flow var(--duration-slower) linear infinite;
+  /* Charts drawing in on load: bars grow up from the baseline (pair with origin-bottom), lines wipe in left to right */
+  --animate-bar-grow: ldg-bar-grow calc(var(--duration-slower) * 1.75) var(--ease-enter) backwards;
+  --animate-line-draw: ldg-line-draw calc(var(--duration-slower) * 2.5) var(--ease-standard) backwards;
+
+  @keyframes ldg-fade-in {
+    from { opacity: 0; }
+  }
+  @keyframes ldg-dialog-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  }
+  @keyframes ldg-sheet-in {
+    from { transform: translateY(100%); }
+  }
+  @keyframes ldg-toast-in {
+    from { opacity: 0; transform: translateY(12px); }
+  }
+  @keyframes ldg-menu-in {
+    from { opacity: 0; transform: translateY(-4px); }
+  }
+  @keyframes ldg-drawer-left-in {
+    from { transform: translateX(-100%); }
+  }
+  @keyframes ldg-drawer-right-in {
+    from { transform: translateX(100%); }
+  }
+  /* Uses `translate`, not `transform`, so it composes with scroll-linked transforms on the same element */
+  @keyframes ldg-rise-in {
+    from { opacity: 0; translate: 0 2rem; filter: blur(8px); }
+  }
+  /* A screen tipped back in 3D space that swings upright into place */
+  @keyframes ldg-stage-in {
+    from { opacity: 0; transform: perspective(1600px) translateY(5rem) rotateX(28deg) scale(0.92); }
+  }
+  /* Moves the dash pattern forward by exactly one period (3 + 2), so the loop is seamless */
+  @keyframes ldg-dash-flow {
+    to { stroke-dashoffset: -5; }
+  }
+  /* Uses `scale`, not `transform`, so it composes with any transform already on the bar */
+  @keyframes ldg-bar-grow {
+    from { scale: 1 0; }
+  }
+  /* A clip that opens from the left; the negative insets leave room for the end dot and stroke caps */
+  @keyframes ldg-line-draw {
+    from { clip-path: inset(-50% 100% -50% -10%); }
+    to { clip-path: inset(-50% -10% -50% -10%); }
+  }
+
   /* Breakpoints — mobile-first. sm 640 · md 768 (tablet) · lg 1024 · xl 1280. */
   --breakpoint-sm: 40rem;
   --breakpoint-md: 48rem;
   --breakpoint-lg: 64rem;
   --breakpoint-xl: 80rem;
   --breakpoint-2xl: 96rem;
+}
+
+/* Theme scopes re-declare every semantic colour variable. Without this, a
+   host stylesheet that also defines e.g. .bg-surface via var(--color-surface)
+   (Tempo's canvas host does) would keep the :root (light) value inside a
+   [data-theme="dark"] subtree. */
+[data-theme] {
+  --color-canvas: var(--ldg-bg-canvas);
+  --color-surface: var(--ldg-bg-surface);
+  --color-surface-raised: var(--ldg-bg-surface-raised);
+  --color-surface-sunken: var(--ldg-bg-surface-sunken);
+  --color-surface-hover: var(--ldg-bg-surface-hover);
+  --color-surface-selected: var(--ldg-bg-surface-selected);
+  --color-inverse: var(--ldg-bg-inverse);
+  --color-inverse-raised: var(--ldg-bg-inverse-raised);
+  --color-inverse-sunken: var(--ldg-bg-inverse-sunken);
+  --color-inverse-chip: var(--ldg-bg-inverse-chip);
+  --color-overlay: var(--ldg-bg-overlay);
+  --color-brand: var(--ldg-bg-brand);
+  --color-brand-hover: var(--ldg-bg-brand-hover);
+  --color-brand-active: var(--ldg-bg-brand-active);
+  --color-brand-subtle: var(--ldg-bg-brand-subtle);
+  --color-brand-subtle-hover: var(--ldg-bg-brand-subtle-hover);
+  --color-accent: var(--ldg-bg-accent);
+  --color-accent-hover: var(--ldg-bg-accent-hover);
+  --color-accent-subtle: var(--ldg-bg-accent-subtle);
+  --color-accent-muted: var(--ldg-bg-accent-muted);
+  --color-fg: var(--ldg-fg-default);
+  --color-fg-muted: var(--ldg-fg-muted);
+  --color-fg-subtle: var(--ldg-fg-subtle);
+  --color-fg-icon: var(--ldg-fg-icon);
+  --color-fg-disabled: var(--ldg-fg-disabled);
+  --color-fg-brand: var(--ldg-fg-brand);
+  --color-fg-brand-strong: var(--ldg-fg-brand-strong);
+  --color-fg-accent: var(--ldg-fg-accent);
+  --color-fg-on-brand: var(--ldg-fg-on-brand);
+  --color-fg-on-accent: var(--ldg-fg-on-accent);
+  --color-fg-on-accent-muted: var(--ldg-fg-on-accent-muted);
+  --color-fg-on-warning: var(--ldg-fg-on-warning);
+  --color-fg-inverse: var(--ldg-fg-inverse);
+  --color-fg-inverse-muted: var(--ldg-fg-inverse-muted);
+  --color-fg-inverse-subtle: var(--ldg-fg-inverse-subtle);
+  --color-fg-inverse-accent: var(--ldg-fg-inverse-accent);
+  --color-line: var(--ldg-line-default);
+  --color-line-subtle: var(--ldg-line-subtle);
+  --color-line-strong: var(--ldg-line-strong);
+  --color-line-control: var(--ldg-line-control);
+  --color-line-input: var(--ldg-line-input);
+  --color-line-input-hover: var(--ldg-line-input-hover);
+  --color-line-field: var(--ldg-line-field);
+  --color-line-field-filled: var(--ldg-line-field-filled);
+  --color-line-field-hover: var(--ldg-line-field-hover);
+  --color-line-focus: var(--ldg-line-focus);
+  --color-line-focus-inverse: var(--ldg-line-focus-inverse);
+  --color-line-brand: var(--ldg-line-brand);
+  --color-line-invalid: var(--ldg-line-invalid);
+  --color-line-inverse: var(--ldg-line-inverse);
+  --color-line-inverse-accent: var(--ldg-line-inverse-accent);
+  --color-line-accent: var(--ldg-line-accent);
+  --color-line-on-accent: var(--ldg-line-on-accent);
+  --color-positive: var(--ldg-bg-positive);
+  --color-positive-subtle: var(--ldg-bg-positive-subtle);
+  --color-fg-positive: var(--ldg-fg-positive);
+  --color-line-positive: var(--ldg-line-positive);
+  --color-negative: var(--ldg-bg-negative);
+  --color-negative-subtle: var(--ldg-bg-negative-subtle);
+  --color-fg-negative: var(--ldg-fg-negative);
+  --color-line-negative: var(--ldg-line-negative);
+  --color-warning: var(--ldg-bg-warning);
+  --color-warning-subtle: var(--ldg-bg-warning-subtle);
+  --color-fg-warning: var(--ldg-fg-warning);
+  --color-line-warning: var(--ldg-line-warning);
+  --color-draft: var(--ldg-bg-draft);
+  --color-draft-subtle: var(--ldg-bg-draft-subtle);
+  --color-fg-draft: var(--ldg-fg-draft);
+  --color-info: var(--ldg-bg-info);
+  --color-info-subtle: var(--ldg-bg-info-subtle);
+  --color-fg-info: var(--ldg-fg-info);
+  --color-line-info: var(--ldg-line-info);
+  --color-chart-1: var(--ldg-chart-1);
+  --color-chart-2: var(--ldg-chart-2);
+  --color-chart-3: var(--ldg-chart-3);
+  --color-chart-4: var(--ldg-chart-4);
+  --color-chart-5: var(--ldg-chart-5);
+  --color-chart-6: var(--ldg-chart-6);
+  --color-chart-highlight: var(--ldg-chart-highlight);
+  --color-chart-highlight-strong: var(--ldg-chart-highlight-strong);
+  --color-chart-grid: var(--ldg-chart-grid);
+  --color-chart-positive: var(--ldg-chart-positive);
+  --color-chart-negative: var(--ldg-chart-negative);
 }
 
 /* Reduced motion — collapse every duration token. */

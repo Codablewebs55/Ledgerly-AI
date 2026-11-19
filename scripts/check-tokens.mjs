@@ -50,10 +50,15 @@ export function contrast(a, b) {
 const TEXT = 4.5
 const UI = 3
 // [foreground, [backgrounds…], min, why]
+// chart-highlight and chart-highlight-strong are decorative emphasis (always paired with a legend label, a
+// tooltip and an sr-only data table), so they are deliberately not held to 3:1 here.
 const pairs = [
   ['fg-default', ['bg-canvas', 'bg-surface', 'bg-surface-sunken', 'bg-surface-hover', 'bg-surface-selected', 'bg-brand-subtle', 'bg-accent-subtle'], TEXT, 'body text'],
   ['fg-muted', ['bg-canvas', 'bg-surface', 'bg-surface-sunken', 'bg-surface-hover', 'bg-surface-selected'], TEXT, 'secondary text'],
   ['fg-subtle', ['bg-canvas', 'bg-surface', 'bg-surface-sunken', 'bg-surface-hover'], TEXT, 'helper text'],
+  ['fg-default', ['bg-accent-muted'], TEXT, 'insight band title'],
+  ['fg-muted', ['bg-accent-muted'], TEXT, 'insight band description'],
+  ['fg-icon', ['bg-surface', 'bg-surface-sunken', 'bg-brand-subtle'], UI, 'decorative icons'],
   ['fg-brand', ['bg-canvas', 'bg-surface', 'bg-surface-sunken', 'bg-brand-subtle', 'bg-surface-selected'], TEXT, 'links, brand text'],
   ['fg-brand-strong', ['bg-canvas', 'bg-surface'], TEXT, 'link hover'],
   ['fg-accent', ['bg-canvas', 'bg-surface', 'bg-accent-subtle'], TEXT, 'lime text'],
@@ -67,10 +72,15 @@ const pairs = [
   ['fg-negative', ['bg-negative-subtle', 'bg-surface', 'bg-canvas'], TEXT, 'negative badge/figure'],
   ['fg-warning', ['bg-warning-subtle', 'bg-surface', 'bg-canvas'], TEXT, 'warning badge'],
   ['fg-info', ['bg-info-subtle', 'bg-surface', 'bg-canvas'], TEXT, 'info badge'],
+  ['fg-draft', ['bg-draft-subtle', 'bg-surface', 'bg-canvas'], TEXT, 'draft badge'],
+  ['bg-draft', ['bg-draft-subtle'], UI, 'draft badge dot'],
   ['line-input', ['bg-surface', 'bg-canvas'], UI, 'form control boundary'],
   ['line-brand', ['bg-surface', 'bg-canvas'], UI, 'checked control'],
   ['line-focus', ['bg-canvas', 'bg-surface', 'bg-surface-sunken', 'bg-brand-subtle'], UI, 'focus ring'],
   ['line-focus-inverse', ['bg-inverse', 'bg-inverse-raised', 'bg-brand'], UI, 'focus ring on dark/brand'],
+  ['line-invalid', ['bg-surface', 'bg-canvas'], UI, 'invalid form control boundary'],
+  ['line-inverse-accent', ['bg-inverse', 'bg-inverse-raised', 'bg-brand'], UI, 'lime outline on dark/brand'],
+  ['fg-on-accent-muted', ['bg-accent'], TEXT, 'secondary text on lime'],
   ['bg-brand', ['bg-canvas', 'bg-surface'], UI, 'primary button boundary'],
   ['chart-1', ['bg-surface', 'bg-canvas'], UI, 'chart series'],
   ['chart-2', ['bg-surface', 'bg-canvas'], UI, 'chart series'],

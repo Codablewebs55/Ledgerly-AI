@@ -36,10 +36,9 @@ export function FilterMenu({ options, value, onChange, label, className }: Filte
           aria-label={`${label}: ${current?.label}`}
           {...props}
           className={cx(
-            'inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-md bg-surface-sunken px-4 text-body-sm text-fg-muted transition-colors duration-(--duration-fast) hover:text-fg aria-expanded:text-fg',
+            'inline-flex h-10 shrink-0 cursor-pointer items-center gap-2 rounded-md bg-surface-sunken px-4 border border-line text-body-sm text-fg transition-colors duration-(--duration-fast) hover:bg-surface-hover aria-expanded:bg-surface-hover',
             className,
           )}
-          style={{ color: 'var(--ldg-fg-on-warning)' }}
         >
           {current?.label}
           <ChevronDown className="size-3.5" aria-hidden />

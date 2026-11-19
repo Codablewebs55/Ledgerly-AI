@@ -32,13 +32,19 @@ export function LogoMark({ tone = 'default', className = 'size-8' }: Omit<LogoPr
   )
 }
 
+/**
+ * The Ledgerly wordmark: forest mark with lime tick on light, lime mark on forest/inverse surfaces.
+ * The canvas for this component is at tempo/designs/design-system/navigation/index.canvas.tsx.
+ * If you adjust this component in any way, ensure the canvas and its asset
+ * declaration stay consistent.
+ */
 export function Logo({ tone = 'default', markOnly = false, className = '' }: LogoProps) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <LogoMark tone={tone} />
       {!markOnly && (
         <span
-          className={`font-display text-heading-md font-extrabold tracking-[-0.03em] ${tone === 'inverse' ? 'text-fg-inverse' : 'text-fg'}`}
+          className={`font-display text-heading-md font-extrabold tracking-(--text-display-xl--letter-spacing) ${tone === 'inverse' ? 'text-fg-inverse' : 'text-fg'}`}
         >
           Ledgerly
         </span>

@@ -1,9 +1,11 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import { Logo } from '@/ds/brand/Logo'
+import { Badge, Button, Card, CardHeader } from '@/ds'
 import { contrastRatio, readTokens } from '@/lib/color'
 import {
   chartTokens,
   fontWeights,
+  iconSizes,
+  layoutTokens,
   motionDurations,
   motionEasings,
   primitiveScales,
@@ -14,10 +16,10 @@ import {
   statusTokens,
   typeScale,
 } from '@/styles/tokens/tokens'
+import { Code } from './docs'
 
-// Brand foundations preview (Stage 2). Documentation only: every value shown
-// is read live from the token CSS, so this page cannot drift from the code.
-// Stage 3 folds it into the full /design-system showcase.
+// Design-system foundations (/design-system/foundations). Every value shown is
+// read live from the token CSS, so this page cannot drift from the code.
 
 const allTokenNames = [
   ...primitiveScales.flatMap((s) => s.steps.map((st) => st.token)),
@@ -61,10 +63,10 @@ export default function FoundationsPage() {
   const hex = (t: string) => tokens[t] ?? ''
 
   return (
-    <div style={{ position: "relative" }} ref={rootRef} className="min-h-screen bg-canvas text-fg">
+    <div ref={rootRef} className="min-h-screen bg-canvas text-fg">
       <Hero />
 
-      <main style={{ position: "absolute", left: "0px", top: "592px", right: "auto", bottom: "auto", width: "1280px", height: "7438px" }} className="mx-auto flex max-w-(--ldg-content-max) flex-col gap-14 px-(--ldg-page-gutter) py-12 md:py-16">
+      <main className="mx-auto flex max-w-(--ldg-content-max) flex-col gap-14 px-(--ldg-page-gutter) py-12 md:py-16">
         <Section
           id="palette"
           title="Brand palette"
@@ -105,7 +107,8 @@ export default function FoundationsPage() {
         >
           <div className="grid gap-4 md:grid-cols-2">
             {semanticGroups.map((group) => (
-              <Card key={group.name} title={group.name}>
+              <Card key={group.name}>
+                <CardHeader title={group.name} />
                 <ul className="divide-y divide-line-subtle">
                   {group.tokens.map((t) => (
                     <li key={t.token} className="flex items-center gap-3 py-2">
@@ -123,36 +126,34 @@ export default function FoundationsPage() {
           </div>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-[2fr_1fr]">
-            <Card title="Status">
+            <Card>
+              <CardHeader title="Status" />
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {statusTokens.map((s) => (
                   <div key={s.key} className="flex flex-col gap-2">
-                    <span
-                      className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-label"
-                      style={{ background: `var(--ldg-bg-${s.key}-subtle)`, color: `var(--ldg-fg-${s.key})` }}
-                    >
-                      <span className="size-1.5 rounded-full" style={{ background: `var(--ldg-fg-${s.key})` }} />
+                    <Badge tone={s.key} dot>
                       {s.example}
-                    </span>
+                    </Badge>
                     <span className="text-caption text-fg-subtle">{s.name}</span>
                     <Code>text-fg-{s.key}</Code>
                   </div>
                 ))}
               </div>
             </Card>
-            <Card title="Data visualisation">
+            <Card>
+              <CardHeader title="Data visualisation" />
               <div className="flex h-24 items-end gap-2">
                 {chartTokens.map((c, i) => (
                   <div
                     key={c.token}
                     className="flex-1 rounded-t-xs"
-                    style={{ background: `var(${c.token})`, height: `${[92, 70, 56, 44, 34, 26, 80][i]}%` }}
+                    style={{ background: `var(${c.token})`, height: `${[92, 70, 56, 44, 34, 26, 80, 62, 18, 50, 40][i]}%` }}
                     title={c.utility}
                   />
                 ))}
               </div>
               <p className="mt-3 text-caption text-fg-subtle">
-                Series 1–6 are each ≥3:1 on surface. The lime highlight is decorative: always paired with a label.
+                Series 1–6 are each ≥3:1 on surface. Highlight and highlight-strong (the outline of a month still in progress) are decorative: always paired with a legend label, a tooltip and the sr-only data table. Grid, positive and negative support the series.
               </p>
             </Card>
           </div>
@@ -178,11 +179,9 @@ export default function FoundationsPage() {
                     </span>
                     <span className="min-w-0 flex-1 truncate text-body-sm">{p.label}</span>
                     <span className="figure text-body-sm font-medium">{Number.isNaN(ratio) ? '—' : `${ratio.toFixed(2)}:1`}</span>
-                    <span
-                      className={`rounded-xs px-1.5 py-0.5 text-caption font-medium ${pass ? 'bg-positive-subtle text-fg-positive' : 'bg-negative-subtle text-fg-negative'}`}
-                    >
+                    <Badge size="sm" tone={pass ? 'positive' : 'negative'}>
                       {pass ? 'AA' : 'Fail'}
-                    </span>
+                    </Badge>
                   </li>
                 )
               })}
@@ -192,16 +191,17 @@ export default function FoundationsPage() {
 
         <Section id="lime" title="Using lime" intro="Lime is the spark, not the paint. It marks the one thing that matters most in a view.">
           <div className="grid gap-4 md:grid-cols-2">
-            <Card title="Do">
+            <Card>
+              <CardHeader title="Do" />
               <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-3 rounded-lg bg-inverse p-4">
                   <span className="text-body-sm text-fg-inverse-muted">Net cash this month</span>
                   <span className="figure ml-auto text-figure-lg text-fg-inverse-accent">+$18,420</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <div style={{ "display": "flex", flexDirection: "column", flexWrap: "nowrap", rowGap: "var(--spacing)", columnGap: "var(--spacing)", alignItems: "flex-start", alignContent: "start", justifyContent: "flex-start", justifyItems: "start", width: "max-content", height: "max-content", paddingTop: "0px", paddingRight: "0px", paddingBottom: "0px", paddingLeft: "0px", boxSizing: "border-box" }}>
-                    <span style={{ position: "relative", marginTop: "0px", marginRight: "0px", marginBottom: "0px", marginLeft: "0px" }} className="rounded-md bg-accent px-4 py-2 text-body-sm font-semibold text-fg-on-accent">Start free trial</span>
-                    <span style={{ position: "relative", marginTop: "0px", marginRight: "0px", marginBottom: "0px", marginLeft: "0px" }} className="text-caption text-fg-subtle">One accent CTA per view</span>
+                  <div className="flex w-max flex-col items-start gap-1">
+                    <Button variant="accent" size="sm">Start free trial</Button>
+                    <span className="text-caption text-fg-subtle">One accent CTA per view</span>
                   </div>
                 </div>
                 <p className="text-body-sm text-fg-muted">
@@ -209,7 +209,8 @@ export default function FoundationsPage() {
                 </p>
               </div>
             </Card>
-            <Card title="Don't">
+            <Card>
+              <CardHeader title="Don't" />
               <div className="flex flex-col gap-4">
                 <div className="rounded-lg bg-accent p-4 text-body-sm text-fg-on-accent">Full lime panels and page backgrounds</div>
                 <p className="text-body-sm text-fg-muted">
@@ -249,11 +250,12 @@ export default function FoundationsPage() {
           </Card>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <Card title="Tabular figures">
+            <Card>
+              <CardHeader title="Tabular figures" />
               <div className="grid grid-cols-2 gap-6">
                 {[false, true].map((tabular) => (
                   <div key={String(tabular)}>
-                    <p style={{ paddingTop: "8px", paddingBottom: "8px", paddingLeft: "8px", paddingRight: "8px", borderTopStyle: "solid", borderRightStyle: "solid", borderBottomStyle: "solid", borderLeftStyle: "solid", borderTopWidth: "1px", borderRightWidth: "1px", borderBottomWidth: "1px", borderLeftWidth: "1px", borderTopColor: "rgb(243, 240, 232)", borderRightColor: "rgb(243, 240, 232)", borderBottomColor: "rgb(243, 240, 232)", borderLeftColor: "rgb(243, 240, 232)", borderTopLeftRadius: "var(--radius-sm)", borderTopRightRadius: "var(--radius-sm)", borderBottomRightRadius: "var(--radius-sm)", borderBottomLeftRadius: "var(--radius-sm)" }} className="mb-2 text-caption text-fg-subtle">{tabular ? 'Figure (tabular)' : 'Proportional'}</p>
+                    <p className="mb-2 rounded-sm border border-line-subtle p-2 text-caption text-fg-subtle">{tabular ? 'Figure (tabular)' : 'Proportional'}</p>
                     <ul className={`flex flex-col items-end gap-1 text-figure-md ${tabular ? 'figure' : ''}`}>
                       {['$1,111.11', '$48,000.00', '$7,909.18', '$111,101.00'].map((n) => (
                         <li key={n}>{n}</li>
@@ -266,7 +268,8 @@ export default function FoundationsPage() {
                 Add <Code>figure</Code> to every amount, count, percentage and date column so digits align.
               </p>
             </Card>
-            <Card title="Weights">
+            <Card>
+              <CardHeader title="Weights" />
               <ul className="flex flex-col gap-2.5">
                 {fontWeights.map((w) => (
                   <li key={w.value} className="flex items-baseline gap-3">
@@ -284,7 +287,7 @@ export default function FoundationsPage() {
           <Card>
             <ul className="grid gap-x-10 gap-y-2 lg:grid-cols-2">
               {spacingScale.map((s) => (
-                <li key={s.step} className="grid grid-cols-[3.5rem_3rem_1fr] items-center gap-3 md:grid-cols-[4rem_3.5rem_1fr_9rem]">
+                <li key={s.step} className="grid h-max grid-cols-[3.5rem_3rem_1fr] items-center gap-3 md:grid-cols-[4rem_3.5rem_1fr_9rem]">
                   <Code>{s.step}</Code>
                   <span className="figure text-caption text-fg-subtle">{s.px}px</span>
                   <span className="h-3 rounded-xs bg-brand" style={{ width: `${s.px}px` }} />
@@ -293,11 +296,40 @@ export default function FoundationsPage() {
               ))}
             </ul>
           </Card>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader title="Layout tokens" description="Widths and rhythm shared by the app shell and the marketing site" />
+              <ul className="flex flex-col divide-y divide-line-subtle">
+                {layoutTokens.map((t) => (
+                  <li key={t.token} className="flex flex-col gap-0.5 py-2.5 first:pt-0 last:pb-0">
+                    <Code>{t.utility}</Code>
+                    <span className="text-caption text-fg-muted">{t.use}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+            <Card>
+              <CardHeader title="Icon sizes" description="Lucide icons on the 4px grid; colour comes from the text token" />
+              <ul className="flex flex-col divide-y divide-line-subtle">
+                {iconSizes.map((s) => (
+                  <li key={s.utility} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+                    <span className="grid size-6 shrink-0 place-items-center text-fg-icon">
+                      <span className={`${s.utility} rounded-xs bg-current`} aria-hidden />
+                    </span>
+                    <Code>{s.utility}</Code>
+                    <span className="figure text-caption text-fg-subtle">{s.px}px</span>
+                    <span className="ml-auto text-right text-caption text-fg-muted">{s.use}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          </div>
         </Section>
 
         <Section id="shape" title="Radius & elevation" intro="Softly rounded controls, calm warm-tinted shadows. Elevation signals layering, never decoration.">
           <div className="grid gap-4 lg:grid-cols-2">
-            <Card title="Radius">
+            <Card>
+              <CardHeader title="Radius" />
               <div className="grid grid-cols-3 gap-4 sm:grid-cols-4">
                 {radiusScale.map((r) => (
                   <div key={r.utility} className="flex flex-col gap-1.5">
@@ -308,7 +340,8 @@ export default function FoundationsPage() {
                 ))}
               </div>
             </Card>
-            <Card title="Shadow">
+            <Card>
+              <CardHeader title="Shadow" />
               <div className="grid grid-cols-2 gap-4 rounded-lg bg-canvas p-4 sm:grid-cols-3">
                 {shadowScale.map((s) => (
                   <div key={s.utility} className={`flex h-24 flex-col justify-end rounded-lg bg-surface p-3 ${s.utility}`}>
@@ -327,7 +360,8 @@ export default function FoundationsPage() {
           intro="Quick and quiet. Hover a row to preview it. All durations collapse to 0 under prefers-reduced-motion."
         >
           <div className="grid gap-4 lg:grid-cols-2">
-            <Card title="Duration">
+            <Card>
+              <CardHeader title="Duration" />
               <ul className="flex flex-col gap-1">
                 {motionDurations.map((d) => (
                   <li key={d.token} className="group flex items-center gap-3 rounded-md px-2 py-2 hover:bg-surface-hover">
@@ -343,7 +377,8 @@ export default function FoundationsPage() {
                 ))}
               </ul>
             </Card>
-            <Card title="Easing">
+            <Card>
+              <CardHeader title="Easing" />
               <ul className="flex flex-col gap-1">
                 {motionEasings.map((e) => (
                   <li key={e.utility} className="group flex items-center gap-3 rounded-md px-2 py-2 hover:bg-surface-hover">
@@ -372,7 +407,7 @@ export default function FoundationsPage() {
       </main>
 
       <footer className="border-t border-line px-(--ldg-page-gutter) py-8 text-center text-caption text-fg-subtle">
-        Ledgerly design tokens · Stage 2 · primitives → semantic → theme
+        Ledgerly design tokens · primitives → semantic → theme
       </footer>
     </div>
   )
@@ -383,8 +418,8 @@ function Hero() {
     <header className="bg-inverse text-fg-inverse">
       <div className="mx-auto max-w-(--ldg-content-max) px-(--ldg-page-gutter) pt-8 pb-14 md:pt-10 md:pb-16">
         <div className="flex items-center justify-between gap-4">
-          <Logo tone="inverse" />
-          <span className="rounded-full border border-line-inverse px-3 py-1 text-caption text-fg-inverse-muted">Brand foundations · v0.1</span>
+          <span className="text-label text-fg-inverse-muted">Foundations</span>
+          <span className="rounded-full border border-line-inverse px-3 py-1 text-caption text-fg-inverse-muted">v0.2</span>
         </div>
         <h1 className="mt-14 max-w-4xl text-display-lg md:mt-16 md:text-display-xl xl:text-display-2xl">
           Your business is complicated enough. <span className="text-fg-inverse-accent">Your accounting shouldn't be.</span>
@@ -426,24 +461,23 @@ function DarkPreview() {
         </div>
         <div className="flex flex-col gap-3 rounded-lg border border-line bg-surface p-5">
           <p className="text-heading-sm font-display">Invoices</p>
-          {[
-            ['positive', 'Paid'],
-            ['warning', 'Due soon'],
-            ['negative', 'Overdue'],
-            ['info', 'Sent'],
-          ].map(([k, label]) => (
-            <span
-              key={k}
-              className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-label"
-              style={{ background: `var(--ldg-bg-${k}-subtle)`, color: `var(--ldg-fg-${k})` }}
-            >
-              <span className="size-1.5 rounded-full" style={{ background: `var(--ldg-fg-${k})` }} />
+          {(
+            [
+              ['positive', 'Paid'],
+              ['warning', 'Due soon'],
+              ['negative', 'Overdue'],
+              ['info', 'Sent'],
+            ] as const
+          ).map(([k, label]) => (
+            <Badge key={k} tone={k} dot>
               {label}
-            </span>
+            </Badge>
           ))}
           <div className="mt-auto flex gap-2 pt-2">
-            <span className="rounded-md bg-brand px-3 py-1.5 text-label text-fg-on-brand">Primary</span>
-            <span className="rounded-md bg-accent px-3 py-1.5 text-label text-fg-on-accent">Accent</span>
+            <Button size="sm">Primary</Button>
+            <Button size="sm" variant="accent">
+              Accent
+            </Button>
           </div>
         </div>
       </div>
@@ -465,18 +499,7 @@ function Section({ id, title, intro, children }: { id: string; title: string; in
   )
 }
 
-function Card({ title, children }: { title?: string; children: ReactNode }) {
-  return (
-    <div className="min-w-0 rounded-lg border border-line bg-surface p-5 shadow-xs md:p-6">
-      {title && <h3 className="mb-4 text-heading-sm">{title}</h3>}
-      {children}
-    </div>
-  )
-}
 
-function Code({ children }: { children: ReactNode }) {
-  return <code className="rounded-xs bg-surface-sunken px-1.5 py-0.5 font-mono text-caption break-all text-fg-muted">{children}</code>
-}
 
 function SemanticSample({ kind, token }: { kind: 'fill' | 'text' | 'line'; token: string }) {
   if (kind === 'text')
