@@ -5,6 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ledgerly</title>
+    <!-- Start the hero product still downloading with the HTML, not after the app bundle has run (md breakpoint = 768px) -->
+    <link rel="preload" as="image" href="/marketing/overview-desktop.webp" type="image/webp" media="(min-width: 768px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/marketing/overview-mobile.webp" type="image/webp" media="(max-width: 767.98px)" fetchpriority="high" />
   </head>
   <body>
     <div id="root"></div>

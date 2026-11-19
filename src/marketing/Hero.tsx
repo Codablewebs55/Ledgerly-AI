@@ -4,6 +4,7 @@ import { Button } from '@/ds'
 import { cx } from '@/ds/utils/cx'
 import { MOTION_ENABLED, useEasedScroll, useOsReducedMotion, useReducedMotion, useScrollProgress } from './motion'
 import { MouseField } from './MouseField'
+import { overviewMobilePlaceholder, overviewPlaceholder } from './placeholders'
 
 const base = import.meta.env.BASE_URL
 
@@ -95,7 +96,8 @@ export function Hero() {
                     alt="Ledgerly Overview: cash on hand $133,912.40, outstanding $52,850.48, overdue $19,950.48, a six-month cash flow chart, three Ledgerly AI insights, recent invoices and what needs attention."
                     {...{ fetchpriority: 'high' }}
                     decoding="async"
-                    className="block w-full"
+                    className="block w-full bg-size-[100%_100%]"
+                    style={{ backgroundImage: `url(${overviewPlaceholder})` }}
                   />
                 </div>
               </div>
@@ -110,7 +112,8 @@ export function Hero() {
                 alt="Ledgerly on a phone: Overview with cash on hand $133,912.40 and outstanding $52,850.48."
                 {...{ fetchpriority: 'high' }}
                 decoding="async"
-                className="absolute top-8 left-1/2 w-[min(17rem,84%)] -translate-x-1/2 rounded-t-[1.75rem] border-x-[6px] border-t-[6px] border-inverse-sunken shadow-xl"
+                className="absolute top-8 left-1/2 w-[min(17rem,84%)] -translate-x-1/2 rounded-t-[1.75rem] border-x-[6px] border-t-[6px] border-inverse-sunken bg-size-[100%_100%] shadow-xl"
+                style={{ backgroundImage: `url(${overviewMobilePlaceholder})` }}
               />
             </div>
             <figcaption className="sr-only">The Ledgerly Overview, the first screen you see each day.</figcaption>
