@@ -1,24 +1,19 @@
 import { useEffect, useRef, type RefObject } from 'react'
 import { useOsReducedMotion } from './motion'
 
-/** Radius of the area the warp reaches, in px */
-const REACH = 230
-/** Spread of the funnel: how wide the pull is felt before it fades */
-const SPREAD = 120
-/** How far the surface is drawn into the hole at its centre (0–1) */
-const DEPTH = 0.42
-/** Spacing of the ledger rules the warp is drawn with */
-const PITCH = 26
+/** Radius of the hole's shade, in px: it fades to nothing by here, so there is no edge */
+const SPREAD = 170
+/** How dark the bottom of the hole gets on sand and on forest bands */
+const DEPTH = { light: 0.14, dark: 0.4 }
 /** How quickly the hole opens, closes and follows the pointer, per frame */
 const EASE = 0.14
 
 /**
- * A subtle hole in the landing page's section backgrounds. While the mouse rests on open background, the surface
- * around it sinks into a funnel: a faint ledger grid appears only there and its rules bend down into the cursor,
- * with a little shade pooling at the centre. Everything fades out smoothly with distance, so there is no edge or
- * bubble, just the background seeming to give way under the pointer. The grid is fixed to the page, so it stays put
- * as the hole moves across it. Sits under all content (LandingPage lifts section content to z-10) and never takes
- * clicks; it closes over text, cards, images and controls. Mouse only; absent under reduced motion.
+ * A subtle dark hole in the landing page's section backgrounds. While the mouse rests on open background, shade pools
+ * under the pointer, deepest at its centre and fading smoothly to nothing, so the band seems to give way into a soft
+ * well there, with no edge or outline. It follows with a slight lag, sits under all content (LandingPage lifts section
+ * content to z-10), never takes clicks, and closes over text, cards, images and controls. Mouse only; absent under
+ * reduced motion.
  */
 export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | null> }) {
   const reduced = useOsReducedMotion()
@@ -30,8 +25,6 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
     const ctx = cvs?.getContext('2d')
     if (!page || !cvs || !ctx || reduced) return
 
-    const root = getComputedStyle(document.documentElement)
-    const ink = { light: root.getPropertyValue('--ldg-line-strong').trim(), dark: root.getPropertyValue('--ldg-fg-inverse-subtle').trim() }
     let dpr = 1
     const size = () => {
       dpr = Math.min(devicePixelRatio || 1, 2)
@@ -47,50 +40,17 @@ export function BackgroundWarp({ pageRef }: { pageRef: RefObject<HTMLElement | n
     let dark = false
     let raf = 0
 
-    // Where a point of the surface ends up when drawn into the hole
-    const sink = (x: number, y: number) => {
-      const dx = x - at.x
-      const dy = y - at.y
-      const r = Math.hypot(dx, dy)
-      const pull = DEPTH * open * Math.exp(-((r / SPREAD) ** 2))
-      return { x: at.x + dx * (1 - pull), y: at.y + dy * (1 - pull), fade: Math.max(0, 1 - r / REACH) }
-    }
-
     const draw = () => {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, innerWidth, innerHeight)
       if (open < 0.01) return
-      ctx.lineWidth = 1
-      ctx.strokeStyle = dark ? ink.dark : ink.light
-      // The rules are fixed to the page, so the hole moves across them rather than dragging them along
-      const offset = -(scrollY % PITCH)
-      const x0 = at.x - REACH
-      const x1 = at.x + REACH
-      const y0 = at.y - REACH
-      const y1 = at.y + REACH
-      const rule = (horizontal: boolean, c: number) => {
-        let prev: ReturnType<typeof sink> | null = null
-        for (let t = horizontal ? x0 : y0; t <= (horizontal ? x1 : y1); t += 6) {
-          const p = horizontal ? sink(t, c) : sink(c, t)
-          if (prev) {
-            ctx.globalAlpha = 0.55 * open * Math.min(prev.fade, p.fade) ** 1.6
-            if (ctx.globalAlpha > 0.004) {
-              ctx.beginPath()
-              ctx.moveTo(prev.x, prev.y)
-              ctx.lineTo(p.x, p.y)
-              ctx.stroke()
-            }
-          }
-          prev = p
-        }
-      }
-      for (let y = Math.floor((y0 - offset) / PITCH) * PITCH + offset; y <= y1; y += PITCH) rule(true, y)
-      for (let x = Math.floor(x0 / PITCH) * PITCH; x <= x1; x += PITCH) rule(false, x)
-      // A little shade pooling at the bottom of the hole
+      // Shade pooling into the hole: deep at the centre, easing off to nothing
+      const depth = (dark ? DEPTH.dark : DEPTH.light) * open
       const shade = ctx.createRadialGradient(at.x, at.y, 0, at.x, at.y, SPREAD)
-      shade.addColorStop(0, `rgb(0 0 0 / ${(dark ? 0.22 : 0.06) * open})`)
+      shade.addColorStop(0, `rgb(0 0 0 / ${depth})`)
+      shade.addColorStop(0.3, `rgb(0 0 0 / ${depth * 0.62})`)
+      shade.addColorStop(0.65, `rgb(0 0 0 / ${depth * 0.2})`)
       shade.addColorStop(1, 'rgb(0 0 0 / 0)')
-      ctx.globalAlpha = 1
       ctx.fillStyle = shade
       ctx.fillRect(at.x - SPREAD, at.y - SPREAD, SPREAD * 2, SPREAD * 2)
     }
