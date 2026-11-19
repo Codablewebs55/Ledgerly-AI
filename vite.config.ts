@@ -7,6 +7,8 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 // tempoVitePlugin() only activates under Tempo's TEMPO=true dev environment.
 export default defineConfig({
+  // GitHub Pages serves the site from /<repo>/; the deploy workflow sets BASE_PATH.
+  base: process.env.BASE_PATH ?? '/',
   plugins: [tempoVitePlugin(), react(), tailwindcss()],
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, 'src') },

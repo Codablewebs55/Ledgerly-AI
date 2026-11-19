@@ -5,11 +5,13 @@ import { cx } from '@/ds/utils/cx'
 import { MOTION_ENABLED, useEasedScroll, useOsReducedMotion, useReducedMotion, useScrollProgress } from './motion'
 import { MouseField } from './MouseField'
 
+const base = import.meta.env.BASE_URL
+
 // Product stills are captured from the running app by
 // scripts/marketing/capture-stills.mjs (2x, seed data). Sizes are CSS px.
 const shots = {
-  overview: { src: '/marketing/overview-desktop.webp', w: 1440, h: 1474 },
-  overviewMobile: { src: '/marketing/overview-mobile.webp', w: 390, h: 844 },
+  overview: { src: base + 'marketing/overview-desktop.webp', w: 1440, h: 1474 },
+  overviewMobile: { src: base + 'marketing/overview-mobile.webp', w: 390, h: 844 },
 }
 
 /**
