@@ -25,11 +25,13 @@ type Key = { pen: number; len: number[] }
 type Stop = { offset: number; inverse: boolean }
 type Geometry = { w: number; h: number; strands: Strand[]; keys: Key[]; stops: Stop[]; stroke: number }
 
+/** How much of the gap to the scroll position the pen closes each frame: low, so the lines draw slowly and calmly */
+const EASE = 0.05
 /** Where the pen sits in the viewport: the tips trail just past the middle of the screen */
 const PEN = 0.58
 /**
- * The fire leading each tip, as layered streaks that all end at the tip: a long fading tail of flame, a wide red
- * halo, the flame itself and a short white-hot core
+ * The brand-lime fire leading each tip, as layered streaks that all end at the tip: a long fading tail of flame, a
+ * wide halo, the flame itself and a short white-hot core
  */
 const EMBER = [
   { length: 300, width: 1, opacity: 0.45, color: 'text-ember-flame' },
@@ -104,14 +106,14 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
     }
 
     const target = () => scrollY + innerHeight * PEN - (page.getBoundingClientRect().top + scrollY)
-    // The pen glides after the scroll a little, so a flick of the wheel still draws in one smooth stroke
+    // The pen glides after the scroll, so even a fast flick of the wheel draws in one slow, smooth stroke
     let last = 0
     let raf = 0
     const tick = (now: number) => {
       const goal = target()
       const dt = last ? Math.min(now - last, 64) : 16.7
       last = now
-      pen.current += (goal - pen.current) * (1 - Math.pow(1 - 0.14, dt / 16.7))
+      pen.current += (goal - pen.current) * (1 - Math.pow(1 - EASE, dt / 16.7))
       if (Math.abs(goal - pen.current) < 0.5) pen.current = goal
       draw(pen.current)
       raf = pen.current === goal ? 0 : requestAnimationFrame(tick)
@@ -189,7 +191,7 @@ export function LedgerTrail({ pageRef }: { pageRef: RefObject<HTMLDivElement | n
                 strokeDashoffset={e.length}
               />
             ))}
-            {/* The flame at the tip: a flickering red halo around a white-hot centre */}
+            {/* The flame at the tip: a flickering halo around a white-hot centre */}
             <g
               ref={(el) => {
                 flames.current[i] = el
@@ -355,17 +357,28 @@ function layout(page: HTMLElement): Geometry | null {
   const built = [-gap, gap].map((off) => offsetLine(route, off, radius))
   const strands = built.map((b) => ({ d: b.d, total: b.total }))
 
-  // Pen keyframes. Each horizontal run (with its two corners) is drawn as the pen crosses a window around its break;
-  // the drops in between fill the rest. Both lines share the keyframes so they stay side by side.
-  const keys: Key[] = [{ pen: 0, len: built.map(() => 0) }]
+  // Pen keyframes. Each horizontal run (with its two corners) is drawn as the pen crosses a wide window around its
+  // break, so a long run across the page takes a good stretch of scrolling and never shoots across; the drops in
+  // between fill the rest. Neighbouring windows that would overlap meet halfway. Both lines share the keyframes so
+  // they stay side by side.
+  const end = route[route.length - 1].y
+  const windows: { from: number; to: number; c: number }[] = []
   for (let c = 1; c + 1 < route.length - 1; c += 2) {
-    const run = Math.abs(route[c + 1].x - route[c].x)
-    const y = route[c].y
-    const half = Math.min(200, Math.max(70, run * 0.3))
-    keys.push({ pen: y - half, len: built.map((b) => b.corners[c - 1].start) })
-    keys.push({ pen: y + half, len: built.map((b) => b.corners[c].end) })
+    const half = Math.min(450, Math.max(160, Math.abs(route[c + 1].x - route[c].x) * 0.5))
+    windows.push({ from: route[c].y - half, to: route[c].y + half, c })
   }
-  keys.push({ pen: route[route.length - 1].y, len: built.map((b) => b.total) })
+  windows.forEach((win, i) => {
+    const prev = windows[i - 1]
+    if (prev && win.from < prev.to) win.from = prev.to = (win.from + prev.to) / 2
+    win.from = Math.max(win.from, 0)
+    win.to = Math.min(win.to, end)
+  })
+  const keys: Key[] = [{ pen: 0, len: built.map(() => 0) }]
+  for (const { from, to, c } of windows) {
+    keys.push({ pen: from, len: built.map((b) => b.corners[c - 1].start) })
+    keys.push({ pen: Math.max(from, to), len: built.map((b) => b.corners[c].end) })
+  }
+  keys.push({ pen: end, len: built.map((b) => b.total) })
 
   // Ink colour per band: lime on forest sections, forest on sand, blended across each break
   const stops: Stop[] = []

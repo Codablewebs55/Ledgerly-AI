@@ -105,9 +105,9 @@ export const semanticGroups: SemanticGroup[] = [
     name: 'Ember (decorative)',
     kind: 'fill',
     tokens: [
-      { token: '--ldg-ember-core', utility: 'text-ember-core', purpose: 'White-hot centre of the fire leading the landing-page trail' },
-      { token: '--ldg-ember-flame', utility: 'text-ember-flame', purpose: 'The flame and its fading tail' },
-      { token: '--ldg-ember-glow', utility: 'text-ember-glow', purpose: 'Soft red halo around the flame' },
+      { token: '--ldg-ember-core', utility: 'text-ember-core', purpose: 'White-hot centre of the brand-lime fire leading the landing-page trail' },
+      { token: '--ldg-ember-flame', utility: 'text-ember-flame', purpose: 'The flame and its fading tail (brand lime)' },
+      { token: '--ldg-ember-glow', utility: 'text-ember-glow', purpose: 'Soft lime halo around the flame' },
     ],
   },
 ]
