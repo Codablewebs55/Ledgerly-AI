@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { CursorRing } from './CursorRing'
 import { Hero } from './Hero'
+import { LedgerTrail } from './LedgerTrail'
 import { MarketingNav } from './MarketingNav'
 import { useOsReducedMotion } from './motion'
 import { Assistant } from './sections/Assistant'
@@ -40,7 +41,9 @@ export default function LandingPage() {
   }, [])
 
   return (
-    <div ref={pageRef} className="min-h-screen overflow-x-clip bg-canvas">
+    // Each section's content is lifted to z-10 so the ledger trail (z-0) runs over the section backgrounds but under
+    // everything on them
+    <div ref={pageRef} className="relative min-h-screen overflow-x-clip bg-canvas [&_section>*]:relative [&_section>*]:z-10">
       <a href="#main" className="sr-only z-50 rounded-md bg-accent px-4 py-2 text-fg-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
         Skip to content
       </a>
@@ -58,6 +61,7 @@ export default function LandingPage() {
         <FinalCta />
       </main>
       <Footer />
+      <LedgerTrail pageRef={pageRef} />
       <CursorRing />
     </div>
   )
